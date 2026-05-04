@@ -4,7 +4,7 @@ A full-stack blog application where users can create, view, edit, and delete pos
 
 ---
 
-## 🚀 Features
+##  Features
 
 - User Authentication (JWT + Cookies)
 - Register & Login (username/email)
