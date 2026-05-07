@@ -1,19 +1,19 @@
 # MERN Stack CRUD Application
 
-A basic full-stack MERN (MongoDB, Express, React, Node.js) application built to understand core backend and frontend integration.
-
-This project demonstrates CRUD operations, REST API design, and image upload functionality using a cloud storage service.
+A full-stack blog application where users can create, view, edit, and delete posts with image uploads and authentication.
 
 ---
 
 ##  Features
 
-* Create, Read, Update, Delete (CRUD) posts
-* RESTful API using Express.js
-* MongoDB database integration (Mongoose)
-* Image upload (ImageKit / Cloud storage)
-* React frontend with routing
-* Form handling and API integration using Axios
+- User Authentication (JWT + Cookies)
+- Register & Login (username/email)
+- Image Upload using ImageKit
+- Create, Read, Update, Delete (CRUD) Posts
+- Only post owners can edit/delete their posts
+- User-specific posts page
+- Protected backend routes
+- Responsive UI with React
 
 ---
 
@@ -36,6 +36,7 @@ This project demonstrates CRUD operations, REST API design, and image upload fun
 
 **Other Tools**
 
+* JWT Authentication
 * Multer (file upload)
 * ImageKit (image storage)
 * Dotenv (environment variables)
@@ -45,23 +46,11 @@ This project demonstrates CRUD operations, REST API design, and image upload fun
 
 ##  Future Improvements
 
-* User authentication (JWT)
-* Like & comment system
-* Better UI/UX design
-* Image preview before upload
-* Pagination for posts
-
----
-
-##  Learning Outcome
-
-This project helped in understanding:
-
-* Full-stack data flow
-* REST API design
-* File uploads and cloud storage
-* MongoDB operations with Mongoose
-* Debugging real-world backend issues
+Like & comment system
+Search functionality
+Pagination / infinite scroll
+Profile page
+Dark mode
 
 ---
 
