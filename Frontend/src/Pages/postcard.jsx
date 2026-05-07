@@ -3,9 +3,11 @@ import { useNavigate, useParams } from 'react-router-dom'
 import axios from 'axios'
 
 function Postcard() {
-    const [img, setImg] = useState("")
+    const [img, setImg] = useState()
     const [caption, setCaption] = useState("")
     const [isOwner, setIsOwner] = useState(false)
+    const [likes, setLikes] = useState()
+    const [liked, setLiked] = useState()
 
     const { id } = useParams()
     const navigate = useNavigate()
@@ -21,6 +23,11 @@ function Postcard() {
                 setImg(res.data.post.uri)
                 setCaption(res.data.post.caption)
                 setIsOwner(res.data.isOwner)
+                setLikes(res.data.post.likes.length)
+                if(res.data.post.likes.includes(res.data.post.user_id)){
+                    setLiked(true)
+                }
+                
 
             } catch (error) {
                 console.log(error)
@@ -61,37 +68,92 @@ function Postcard() {
         }
     }
 
+    const handleLike = async () => {
+        await axios.post(`http://localhost:5000/api/user/posts/${id}/like`, {}, { withCredentials: true })
+            .then((res) => {
+                setLikes(res.data.likes)
+                setLiked(res.data.liked)
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+    }
+
     return (
         <div className="edit-container ">
             <button onClick={() => navigate("/feed")}>Back</button>
             <form onSubmit={handleSubmit} className="edit-form">
 
 
-                <h2
+                <div
                     style={{
-                        fontSize: "26px",
-                        fontWeight: "600",
-                        color: "#b6b4b4",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
                         marginBottom: "20px",
                         borderBottom: "2px solid #979494",
-                        paddingBottom: "8px",
-                        letterSpacing: "0.5px"
+                        paddingBottom: "8px"
                     }}
                 >
-                    {isOwner ? "Edit Post :" : "View Post :"}
-                </h2>
+                    <h2
+                        style={{
+                            fontSize: "26px",
+                            fontWeight: "600",
+                            color: "#b6b4b4",
+                            letterSpacing: "0.5px",
+                            margin: 0
+                        }}
+                    >
+                        {isOwner ? "Edit Post :" : "View Post :"}
+                    </h2>
+
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px"
+                        }}
+                    >
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                handleLike()
+                            }}
+                            style={{
+                                background: "transparent",
+                                border: "none",
+                                fontSize: "28px",
+                                cursor: "pointer",
+                                transition: "0.2s",
+                                color: liked ? "#ff4d4d" : "#bbb"
+                            }}
+                        >
+                            {liked ? "❤️" : "🤍"}
+                        </button>
+
+                        <span
+                            style={{
+                                color: "#ccc",
+                                fontSize: "15px",
+                                fontWeight: "500"
+                            }}
+                        >
+                            {likes}
+                        </span>
+                    </div>
+                </div>
 
                 <img src={img} alt="" />
 
-
-                <input
+                {isOwner ? <input
                     type="text"
                     name="caption"
                     value={caption}
                     onChange={(e) => setCaption(e.target.value)}
                     placeholder="Edit caption"
-                    disabled={!isOwner}
-                />
+
+                /> : <h4>{caption}</h4>
+                }
 
 
                 {isOwner && (

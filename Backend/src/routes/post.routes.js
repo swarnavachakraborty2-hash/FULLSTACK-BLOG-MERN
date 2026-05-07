@@ -19,10 +19,11 @@ route.get("/posts", authMiddlewares.authGeneral, postControllers.getPosts)
 route.get("/search-post", authMiddlewares.authGeneral, postControllers.searchPost)// req = {searchTitle: string}
 
 
+
 route.delete("/posts/:id", authMiddlewares.authGeneral, postControllers.deletePost)
 route.patch("/posts/:id", authMiddlewares.authGeneral, postControllers.updatePosts)
 route.get("/posts/:id", authMiddlewares.authGeneral, postControllers.getPost)
-
+route.post("/posts/:id/like", authMiddlewares.authGeneral, postControllers.likePost)
 
 
 

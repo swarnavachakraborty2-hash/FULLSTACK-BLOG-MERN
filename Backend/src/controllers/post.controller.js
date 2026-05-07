@@ -157,4 +157,38 @@ async function searchPost(req, res) {
 }
 
 
-module.exports = { createPost, getPost, getPosts, deletePost, updatePosts, getUserPosts, searchPost }
+async function likePost(req, res) {
+
+    const user_id = req.user.id
+
+    const post_id = req.params.id
+
+    const post = await postModel.findOne({_id: post_id})
+
+    const alreadyLiked = post.likes.includes(user_id)
+
+    if(alreadyLiked){
+         post.likes.pull(user_id)// modified the array but still didn't use direct database query language so it is not saved in the database yet
+
+         await post.save()// save the changes to database
+
+         return res.status(200).json({
+            message: "post unliked successfully",
+            likes: post.likes.length,
+            liked: false
+         })
+    }
+
+    post.likes.push(user_id)
+
+    await post.save()
+
+    return res.status(200).json({
+        message: "post liked successfully",
+        likes: post.likes.length,
+        liked: true
+    })
+}
+
+
+module.exports = { createPost, getPost, getPosts, deletePost, updatePosts, getUserPosts, searchPost, likePost }

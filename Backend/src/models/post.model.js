@@ -9,7 +9,13 @@ const postSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    user_id:{
+    //contains the ids of the user who liked the post
+    likes: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user"
+    }],
+    //contains the ids of the user who created the post
+    user_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "user",
         required: true
