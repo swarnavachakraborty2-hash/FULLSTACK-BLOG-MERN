@@ -6,12 +6,26 @@ function Postcard() {
     const [img, setImg] = useState()
     const [caption, setCaption] = useState("")
     const [isOwner, setIsOwner] = useState(false)
-    const [likes, setLikes] = useState()
+    const [likes, setLikes] = useState(0)
     const [liked, setLiked] = useState()
-
+    const [userID, setUserID] = useState()
     const { id } = useParams()
     const navigate = useNavigate()
 
+
+    //fetch user details on page load
+    useEffect(() => {
+        const fetchuser = async () => {
+            await axios.get("http://localhost:5000/api/user/get-user",{withCredentials: true})
+                .then((res) => {
+                    setUserID(res.data.id)
+                })
+        }
+        fetchuser()
+    }, [id])
+
+
+    //fetch post on page load
     useEffect(() => {
         const fetchpost = async () => {
             try {
@@ -20,23 +34,22 @@ function Postcard() {
                     { withCredentials: true }
                 )
 
-                setImg(res.data.post.uri)
-                setCaption(res.data.post.caption)
+                setImg(res.data.image)
+                setCaption(res.data.caption)
                 setIsOwner(res.data.isOwner)
-                setLikes(res.data.post.likes.length)
-                if(res.data.post.likes.includes(res.data.post.user_id)){
+                setLikes(res.data.likes.length)
+                if (res.data.likes.includes(userID)) {
                     setLiked(true)
                 }
-                
-
             } catch (error) {
                 console.log(error)
             }
         }
-
         fetchpost()
-    }, [id])
+    }, [id,userID])
 
+
+    //update
     const handleSubmit = async (e) => {
         e.preventDefault()
 
@@ -54,6 +67,8 @@ function Postcard() {
         }
     }
 
+
+    //delete
     const deletePost = async () => {
         try {
             await axios.delete(
@@ -67,6 +82,8 @@ function Postcard() {
             console.log(error)
         }
     }
+
+
 
     const handleLike = async () => {
         await axios.post(`http://localhost:5000/api/user/posts/${id}/like`, {}, { withCredentials: true })
@@ -116,9 +133,7 @@ function Postcard() {
                     >
                         <button
                             type="button"
-                            onClick={(e) => {
-                                handleLike()
-                            }}
+                            onClick={handleLike}
                             style={{
                                 background: "transparent",
                                 border: "none",

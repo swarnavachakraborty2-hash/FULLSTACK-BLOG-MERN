@@ -10,4 +10,5 @@ route.post("/login", authControllers.Login)// req = {username:""/email:"" , pass
 route.post("/logout", authControllers.Logout)
 
 
+
 module.exports = route

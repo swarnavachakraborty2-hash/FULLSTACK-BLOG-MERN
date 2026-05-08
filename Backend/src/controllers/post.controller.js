@@ -95,7 +95,7 @@ async function updatePosts(req, res) {//needs to pass a paramter object with key
 }
 
 
-
+// returns the selected post and also return the ownership of the post if it is owned by the user or not and likes in a string format
 async function getPost(req, res) {
 
     const id = req.params.id
@@ -110,8 +110,10 @@ async function getPost(req, res) {
 
     return res.status(200).json({
         message: "post found",
-        post,
-        isOwner
+        image: post.uri,
+        caption: post.caption,
+        likes: post.likes.map((like)=>like.toString()),//return array of likes in a string format
+        isOwner //checks ownership of the post
     })
 
 }
@@ -132,26 +134,23 @@ async function getUserPosts(req, res) {
 
 
 async function searchPost(req, res) {
+    try {
+        const { search } = req.body
 
-    if (req.user) {
-        const { searchTitle } = req.body
-
-        const post = await postModel.find({
-            title: searchTitle
+        const posts = await postModel.find({
+            caption: search
         })
-
-        if (!post) {
-            return res.status(200).json({ message: "no posts found" })
-        }
 
         return res.status(200).json({
-            message: "post found",
-            post
+            message: "posts found",
+            posts
         })
-    }
-    else {
-        return res.status(404).json({
-            message: "error"
+
+    } catch (error) {
+        console.log(error)
+
+        return res.status(500).json({
+            message: "server error"
         })
     }
 }
@@ -191,4 +190,18 @@ async function likePost(req, res) {
 }
 
 
-module.exports = { createPost, getPost, getPosts, deletePost, updatePosts, getUserPosts, searchPost, likePost }
+
+async function getUserID(req,res){
+
+    const userID = req.user.id
+
+    const user = await authModel.findOne({_id: userID})
+
+    return res.status(200).json({
+        message: "user fetched successfully",
+        id: user._id.toString()
+    })
+
+}
+
+module.exports = { createPost, getPost, getPosts, deletePost, updatePosts, getUserPosts, searchPost, likePost, getUserID }

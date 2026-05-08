@@ -72,6 +72,10 @@ function Login() {
 
                     <button type="submit">Login</button>
                 </form>
+                <p className="auth-switch">
+                    Don't have an account?{" "}
+                    <span onClick={() => navigate("/")}>Register</span>
+                </p>
             </div>
         </section>
     )
