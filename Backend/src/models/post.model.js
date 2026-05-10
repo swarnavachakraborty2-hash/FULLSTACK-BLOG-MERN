@@ -1,19 +1,41 @@
 const mongoose = require('mongoose')
 
 const postSchema = mongoose.Schema({
+    //image will be converted to url using cloud storage provider will be stored in DB as a string
     uri: {
         type: String,
         required: true
-    }, //image will be converted to url using cloud storage provider will be stored in DB as a string
+    },
+
+
     caption: {
         type: String,
         required: true
     },
+
+
     //contains the ids of the user who liked the post
     likes: [{
+        //_id is added automatically 
         type: mongoose.Schema.Types.ObjectId,
         ref: "user"
     }],
+
+
+    //contains the ids and comments of the users
+    comments: [{
+        //_id is added automatically to each object which can be accessed using .id(id)
+        id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "user",
+            required: true
+        },
+        comment: {
+            type: String
+        }
+    }],
+
+
     //contains the ids of the user who created the post
     user_id: {
         type: mongoose.Schema.Types.ObjectId,

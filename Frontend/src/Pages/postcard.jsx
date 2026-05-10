@@ -7,7 +7,9 @@ function Postcard() {
     const [caption, setCaption] = useState("")
     const [isOwner, setIsOwner] = useState(false)
     const [likes, setLikes] = useState(0)
-    const [liked, setLiked] = useState()
+    const [liked, setLiked] = useState(false)
+    const [comment, setComment] = useState("")
+    const [comments, setComments] = useState(0)
     const [userID, setUserID] = useState()
     const { id } = useParams()
     const navigate = useNavigate()
@@ -16,7 +18,7 @@ function Postcard() {
     //fetch user details on page load
     useEffect(() => {
         const fetchuser = async () => {
-            await axios.get("http://localhost:5000/api/user/get-user",{withCredentials: true})
+            await axios.get("http://localhost:5000/api/user/get-userid",{withCredentials: true})
                 .then((res) => {
                     setUserID(res.data.id)
                 })
@@ -38,6 +40,7 @@ function Postcard() {
                 setCaption(res.data.caption)
                 setIsOwner(res.data.isOwner)
                 setLikes(res.data.likes.length)
+                setComments(res.data.comments.length)
                 if (res.data.likes.includes(userID)) {
                     setLiked(true)
                 }
@@ -96,6 +99,16 @@ function Postcard() {
             })
     }
 
+
+    const handleComment = async () => {
+        await axios.post(`http://localhost:5000/api/user/posts/${id}/comment`, { comment }, { withCredentials: true })
+            .then((res) => {
+                console.log(res.data.message)
+                setComment("")
+            })
+    }
+
+
     return (
         <div className="edit-container ">
             <button onClick={() => navigate("/feed")}>Back</button>
@@ -128,33 +141,71 @@ function Postcard() {
                         style={{
                             display: "flex",
                             alignItems: "center",
-                            gap: "6px"
+                            gap: "16px" 
                         }}
                     >
-                        <button
-                            type="button"
-                            onClick={handleLike}
+                        <div
                             style={{
-                                background: "transparent",
-                                border: "none",
-                                fontSize: "28px",
-                                cursor: "pointer",
-                                transition: "0.2s",
-                                color: liked ? "#ff4d4d" : "#bbb"
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "1px"
                             }}
                         >
-                            {liked ? "❤️" : "🤍"}
-                        </button>
+                            <button
+                                type="button"
+                                onClick={handleLike}
+                                style={{
+                                    background: "transparent",
+                                    border: "none",
+                                    fontSize: "26px",
+                                    cursor: "pointer",
+                                    color: liked ? "#ff4d4d" : "#bbb",
+                                    display: "flex",
+                                    alignItems: "center"
+                                }}
+                            >
+                                {liked ? "❤️" : "🤍"}
+                            
 
-                        <span
+                            <span
+                                style={{
+                                    color: "#ccc",
+                                    fontSize: "14px",
+                                    fontWeight: "500"
+                                }}
+                            >
+                                {likes}
+                            </span>
+                            </button>
+                        </div>
+                        <div
                             style={{
-                                color: "#ccc",
-                                fontSize: "15px",
-                                fontWeight: "500"
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "4px"
                             }}
                         >
-                            {likes}
-                        </span>
+                            <img
+                                src="https://cdn.iconscout.com/icon/free/png-256/comment-3251596-2724645.png"
+                                alt="comment"
+                                style={{
+                                    width: "22px",
+                                    height: "22px",
+                                    objectFit: "contain",
+                                    filter: "invert(80%)"
+                                }}
+                            />
+
+                            <span
+                                style={{
+                                    color: "#ccc",
+                                    fontSize: "14px",
+                                    fontWeight: "500"
+                                }}
+                            >
+                                {comments}
+                            </span>
+                        </div>
                     </div>
                 </div>
 
@@ -167,8 +218,64 @@ function Postcard() {
                     onChange={(e) => setCaption(e.target.value)}
                     placeholder="Edit caption"
 
-                /> : <h4>{caption}</h4>
+                /> : <h4 style={{ alignContent: "center" }}>{caption}</h4>
                 }
+
+                <div
+                    style={{
+                        marginTop: "15px",
+                        display: "flex",
+                        justifyContent: "center"
+                    }}
+                >
+                    <div
+                        style={{
+                            position: "relative",
+                            width: "260px"
+                        }}
+                    >
+                        <input
+                            type="text"
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                            placeholder="Add a comment..."
+                            style={{
+                                width: "100%",
+                                height: "40px",
+                                padding: "0 45px 0 12px",
+                                fontSize: "13px",
+                                borderRadius: "20px",
+                                border: "1px solid #555",
+                                background: "#1e1e2f",
+                                color: "#fff",
+                                outline: "none"
+                            }}
+                        />
+                        <button
+                            type="button"
+                            onClick={handleComment}
+                            style={{
+                                position: "absolute",
+                                right: "5px",
+                                top: "50%",
+                                transform: "translateY(-50%)",
+                                height: "30px",
+                                width: "30px",
+                                borderRadius: "50%",
+                                border: "none",
+                                background: "#ff4d4d",
+                                color: "white",
+                                cursor: "pointer",
+                                fontSize: "14px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center"
+                            }}
+                        >
+                            ➤
+                        </button>
+                    </div>
+                </div>
 
 
                 {isOwner && (

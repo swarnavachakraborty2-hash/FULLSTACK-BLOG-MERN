@@ -10,6 +10,17 @@ const Feed = () => {
     const navigate = useNavigate()
     const [posts, setPosts] = useState([])
     const [searchCaption, setSearchCaption] = useState("")
+    const [username, setUsername] = useState("")
+
+    useEffect(() => {
+        const fetchuser = async () => {
+            await axios.get("http://localhost:5000/api/user/get-user", { withCredentials: true })
+                .then((res) => {
+                    setUsername(res.data.user.username)
+                })
+        }
+        fetchuser()
+    }, [])
 
 
     //fetching posts based on search bar
@@ -60,7 +71,31 @@ const Feed = () => {
     return (
         <section className='feed-section'>
             <div className="feed-header">
-                <h1>Feed</h1>
+                <div
+                    style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "2px"
+                    }}
+                >
+                    <span
+                        style={{
+                            fontSize: "14px",
+                            color: "#aaa",
+                            fontWeight: "500"
+                        }}
+                    >
+                        {username}
+                    </span>
+
+                    <h1
+                        style={{
+                            margin: 0
+                        }}
+                    >
+                        Feed
+                    </h1>
+                </div>
 
                 <div className="feed-right">
                     <form className="search-bar">
@@ -88,12 +123,26 @@ const Feed = () => {
                             onClick={() => navigate(`/feed/${post._id}`)}
                             style={{ position: "relative" }}
                         >
-                            <img
-                                src={post.uri}
-                                alt={post.caption}
-                            />
 
-                            <p>{post.caption}</p>
+                            <div
+                                className='post-card'
+                                onClick={() => navigate(`/feed/${post._id}`)}
+                                style={{ position: "relative" }}
+                            >
+                                <img src={post.uri} alt={post.caption} />
+                                <span
+                                    style={{
+                                        fontSize: "13px",
+                                        color: "#aaa",
+                                        marginBottom: "4px",
+                                        paddingLeft: "4px"
+                                    }}
+                                >
+                                    {post.user_id.username}
+                                    <p style={{marginLeft:"-8px",marginTop:"-6px"}}>{post.caption}</p>
+                                </span>
+                                
+                            </div>
 
                         </div>
                     ))

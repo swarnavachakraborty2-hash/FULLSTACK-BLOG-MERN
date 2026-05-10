@@ -38,12 +38,20 @@ route.patch("/posts/:id", authMiddlewares.authGeneral, postControllers.updatePos
 //like post
 route.post("/posts/:id/like", authMiddlewares.authGeneral, postControllers.likePost)
 
+//comment on post
+route.post("/posts/:id/comment", authMiddlewares.authGeneral, postControllers.commentPost)
+//delete comment
+route.delete("/posts/:id/comment", authMiddlewares.authGeneral, postControllers.deleteComment)
+
+
 
 
 //validation
-//return current user details
-route.get("/get-user", authMiddlewares.authGeneral, postControllers.getUserID)
+//return current user's id in string format
+route.get("/get-userid", authMiddlewares.authGeneral, postControllers.getUserID)
 
+//return current user's all details
+route.get("/get-user", authMiddlewares.authGeneral, postControllers.getUser)
 
 
 module.exports = route

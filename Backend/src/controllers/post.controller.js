@@ -99,7 +99,7 @@ async function updatePosts(req, res) {//needs to pass a paramter object with key
 async function getPost(req, res) {
 
     const id = req.params.id
-    const post = await postModel.findById(id)
+    const post = await postModel.findById(id).populate("comments.id","username")
 
     const userid = req.user.id
 
@@ -112,8 +112,9 @@ async function getPost(req, res) {
         message: "post found",
         image: post.uri,
         caption: post.caption,
-        likes: post.likes.map((like)=>like.toString()),//return array of likes in a string format
-        isOwner //checks ownership of the post
+        likes: post.likes.map((like) => like.toString()),//return array of liked users in a string format tom store in useState frontend
+        isOwner, //checks ownership of the post
+        comments: post.comments
     })
 
 }
@@ -131,6 +132,7 @@ async function getUserPosts(req, res) {
         userPosts
     })
 }
+
 
 
 async function searchPost(req, res) {
@@ -156,26 +158,27 @@ async function searchPost(req, res) {
 }
 
 
+
 async function likePost(req, res) {
 
     const user_id = req.user.id
 
     const post_id = req.params.id
 
-    const post = await postModel.findOne({_id: post_id})
+    const post = await postModel.findOne({ _id: post_id })
 
     const alreadyLiked = post.likes.includes(user_id)
 
-    if(alreadyLiked){
-         post.likes.pull(user_id)// modified the array but still didn't use direct database query language so it is not saved in the database yet
+    if (alreadyLiked) {
+        post.likes.pull(user_id)// modified the array but still didn't use direct database query language so it is not saved in the database yet
 
-         await post.save()// save the changes to database
+        await post.save()// save the changes to database
 
-         return res.status(200).json({
+        return res.status(200).json({
             message: "post unliked successfully",
             likes: post.likes.length,
             liked: false
-         })
+        })
     }
 
     post.likes.push(user_id)
@@ -191,11 +194,67 @@ async function likePost(req, res) {
 
 
 
-async function getUserID(req,res){
+async function commentPost(req, res) {
+
+    const id = req.user.id
+    const postID = req.params.id
+
+    const { comment } = req.body
+
+    const post = await postModel.findOne({
+        _id: postID
+    })
+
+    post.comments.push({ id, comment })
+
+    await post.save()
+
+    return res.status(200).json({
+        message: "comment uploaded successfully",
+        comments: post.comments
+    })
+
+}
+
+
+
+async function deleteComment(req, res) {
+
+    const id = req.user.id
+    const postID = req.params.id
+    const {index} = req.body //provide the index of the comment to be deleted 
+
+    const post = await postModel.findOne({_id: postID})
+
+    //find the comment{} based on provided index of the comment
+    const foundComment = post.comments[index]
+
+   //checks ownership
+   if(foundComment.id.toString() == id){
+
+    post.comments.splice(index,1) //delete the comment from the comments array whose index was provided 
+    await post.save()
+
+    return res.status(200).json({
+        message:"comment deleted successfully",
+        comments: post.comments
+    })
+   }
+
+   return res.status(200).json({
+        message:"can't delete comment",
+        comments: post.comments
+    })
+
+}
+
+
+
+async function getUserID(req, res) {
 
     const userID = req.user.id
 
-    const user = await authModel.findOne({_id: userID})
+    const user = await authModel.findOne({ _id: userID })
 
     return res.status(200).json({
         message: "user fetched successfully",
@@ -204,4 +263,16 @@ async function getUserID(req,res){
 
 }
 
-module.exports = { createPost, getPost, getPosts, deletePost, updatePosts, getUserPosts, searchPost, likePost, getUserID }
+async function getUser(req,res){
+
+     const userID = req.user.id
+
+    const user = await authModel.findOne({ _id: userID })
+
+    return res.status(200).json({
+        message: "user fetched successfully",
+        user
+    })
+}
+
+module.exports = { createPost, getPost, getPosts, deletePost, updatePosts, getUserPosts, searchPost, likePost, getUserID, getUser, commentPost, deleteComment }
