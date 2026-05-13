@@ -181,6 +181,7 @@ color: #e2e8f0;
 display: flex;
 justify-content: space-between;
 gap: 10px;
+margin-top: -40px;
 }
 
 /* EMPTY STATE */
@@ -342,4 +343,73 @@ color: #94a3b8;
     font-size: 16px;
     color: #94a3b8;
     pointer-events: none;
+}
+
+.comments-section {
+    padding: 20px;
+}
+
+/* HEADER */
+.comments-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.comments-header h2 {
+    margin: 0;
+    color: #ddd;
+}
+
+/* LIST */
+.comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* WRAPPER */
+.comment-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* USERNAME */
+.comment-username {
+    font-size: 13px;
+    color: #aaa;
+    padding-left: 4px;
+}
+
+/* COMMENT CARD */
+.comment-card {
+    background: #1e1e2f;
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* TEXT */
+.comment-card p {
+    margin: 0;
+    color: #fff;
+    font-size: 14px;
+}
+
+/* DELETE BUTTON */
+.delete-btn {
+    background: transparent;
+    border: none;
+    color: #ff4d4d;
+    cursor: pointer;
+    font-size: 13px;
+    transition: 0.2s;
+}
+
+.delete-btn:hover {
+    color: #ff1a1a;
 }

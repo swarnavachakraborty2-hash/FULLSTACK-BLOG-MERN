@@ -18,7 +18,7 @@ function Postcard() {
     //fetch user details on page load
     useEffect(() => {
         const fetchuser = async () => {
-            await axios.get("http://localhost:5000/api/user/get-userid",{withCredentials: true})
+            await axios.get("http://localhost:5000/api/user/get-userid", { withCredentials: true })
                 .then((res) => {
                     setUserID(res.data.id)
                 })
@@ -27,7 +27,7 @@ function Postcard() {
     }, [id])
 
 
-    //fetch post on page load
+    //fetch post after user details
     useEffect(() => {
         const fetchpost = async () => {
             try {
@@ -49,7 +49,7 @@ function Postcard() {
             }
         }
         fetchpost()
-    }, [id,userID])
+    }, [id, userID])
 
 
     //update
@@ -87,7 +87,7 @@ function Postcard() {
     }
 
 
-
+    //like
     const handleLike = async () => {
         await axios.post(`http://localhost:5000/api/user/posts/${id}/like`, {}, { withCredentials: true })
             .then((res) => {
@@ -100,11 +100,13 @@ function Postcard() {
     }
 
 
+    //comment
     const handleComment = async () => {
         await axios.post(`http://localhost:5000/api/user/posts/${id}/comment`, { comment }, { withCredentials: true })
             .then((res) => {
                 console.log(res.data.message)
                 setComment("")
+                navigate(`/feed/${id}/comments`)
             })
     }
 
@@ -141,7 +143,7 @@ function Postcard() {
                         style={{
                             display: "flex",
                             alignItems: "center",
-                            gap: "16px" 
+                            gap: "16px"
                         }}
                     >
                         <div
@@ -165,20 +167,21 @@ function Postcard() {
                                 }}
                             >
                                 {liked ? "❤️" : "🤍"}
-                            
 
-                            <span
-                                style={{
-                                    color: "#ccc",
-                                    fontSize: "14px",
-                                    fontWeight: "500"
-                                }}
-                            >
-                                {likes}
-                            </span>
+
+                                <span
+                                    style={{
+                                        color: "#ccc",
+                                        fontSize: "14px",
+                                        fontWeight: "500"
+                                    }}
+                                >
+                                    {likes}
+                                </span>
                             </button>
                         </div>
                         <div
+                            onClick={() => { navigate(`/feed/${id}/comments`) }}
                             style={{
                                 display: "flex",
                                 alignItems: "center",
@@ -188,6 +191,7 @@ function Postcard() {
                             <img
                                 src="https://cdn.iconscout.com/icon/free/png-256/comment-3251596-2724645.png"
                                 alt="comment"
+
                                 style={{
                                     width: "22px",
                                     height: "22px",
@@ -223,6 +227,8 @@ function Postcard() {
 
                 <div
                     style={{
+                        marginTop: "10px",
+                        position: "relative",
                         marginTop: "15px",
                         display: "flex",
                         justifyContent: "center"
@@ -279,7 +285,7 @@ function Postcard() {
 
 
                 {isOwner && (
-                    <div className="btn-group">
+                    <div className="btn-group" style={{ position: "relative", zIndex: 10 }}>
                         <button type="submit">Update</button>
                         <button
                             type="button"

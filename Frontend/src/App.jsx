@@ -6,6 +6,7 @@ import Postcard from './Pages/postcard'
 import Register from "./Pages/register.jsx"
 import UserPosts from "./Pages/userPosts.jsx"
 import Login from "./Pages/login.jsx"
+import Comments from "./Pages/comments.jsx"
 import "./index.css"
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
         <Route path="/create-post" element={<CreatePost />} />
         <Route path="/feed" element={<Feed />} />
         <Route path="/feed/:id" element={<Postcard />} />
+        <Route path="/feed/:id/comments" element={<Comments />} />
         <Route path='/my-feed' element={<UserPosts />} />
       </Routes>
     </BrowserRouter>
