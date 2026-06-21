@@ -3,6 +3,13 @@ const jwt = require("jsonwebtoken")
 const uploadFile = require("../services/imagekit")
 const bcrypt = require("bcrypt")
 
+const cookieOptions = {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none"
+}
+
+
 
 async function Register(req, res) {
     const { username, email, password } = req.body
@@ -38,7 +45,7 @@ async function Register(req, res) {
         id: user._id
     }, process.env.JWT_SECRET_KEY)
 
-    res.cookie("token", token)
+    res.cookie("token", token, cookieOptions)
 
 
 
@@ -74,7 +81,7 @@ async function Login(req, res) {
         id: user._id
     }, process.env.JWT_SECRET_KEY)
 
-    res.cookie("token", token)
+    res.cookie("token", token, cookieOptions)
 
     return res.status(200).json({
         message: "user logged in successfully",
@@ -84,7 +91,7 @@ async function Login(req, res) {
 }
 
 async function Logout(req, res) {
-    res.clearCookie("token")
+    res.clearCookie("token", cookieOptions)
     res.status(200).json({
         message: "logged out successfully"
     })
