@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import axios from "axios"
+import api from '../api/axios'
 import { useNavigate } from "react-router-dom"
 
 function Login() {
@@ -15,10 +15,9 @@ function Login() {
             return
         }
         try {
-            const res = await axios.post(
-                "http://localhost:5000/api/auth/login",
-                { username, email, password },
-                { withCredentials: true }
+            const res = await api.post(
+                "/api/auth/login",
+                { username, email, password }
             )
             console.log(res.data)
             navigate("/")
@@ -27,6 +26,7 @@ function Login() {
             alert("Login failed")
         }
     }
+
 
     return (
         <section className="auth-section">

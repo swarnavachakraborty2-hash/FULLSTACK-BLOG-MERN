@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from "react-router-dom"
 import { FiSearch, FiPlus, FiGrid, FiLogOut, FiUserPlus } from "react-icons/fi"
-import axios from "axios"
+import api from "../api/axios"
 
 const Feed = () => {
     const navigate = useNavigate()
@@ -13,7 +13,7 @@ const Feed = () => {
 
     //fetching current user details if logged in
     useEffect(() => {
-        axios.get("http://localhost:5000/api/user/get-user", { withCredentials: true })
+        api.get("/api/user/get-user")
             .then((res) => {
                 if (res.data._id) {
                     setPresentUser(true)
@@ -32,13 +32,12 @@ const Feed = () => {
         const fetchPosts = async () => {
             try {
                 if (searchCaption.trim() === "") {
-                    const res = await axios.get("http://localhost:5000/api/user/posts", { withCredentials: true })
+                    const res = await api.get("/api/user/posts")
                     setPosts(res.data.posts)
                 } else {
-                    const res = await axios.post(
-                        "http://localhost:5000/api/user/search-post",
-                        { search: searchCaption },
-                        { withCredentials: true }
+                    const res = await api.post(
+                        "/api/user/search-post",
+                        { search: searchCaption }
                     )
                     setPosts(res.data.posts)
                 }
@@ -56,7 +55,7 @@ const Feed = () => {
     
     const handleLogout = async () => {
         try {
-            await axios.post("http://localhost:5000/api/auth/logout", {}, { withCredentials: true })
+            await api.post("/api/auth/logout", {})
             setPresentUser(false)
             setUsername("")
             setProfilePic("")

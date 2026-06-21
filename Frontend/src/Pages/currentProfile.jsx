@@ -1,4 +1,4 @@
-import axios from 'axios'
+import api from '../api/axios'
 import React, { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -27,7 +27,7 @@ function CurrProfile() {
   const [showAvatarModal, setShowAvatarModal] = useState(false)
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/user/get-user", { withCredentials: true })
+    api.get("/api/user/get-user")
       .then((res) => {
         if (res.data.username) {
           setProfileUsername(res.data.username)
@@ -40,7 +40,7 @@ function CurrProfile() {
   }, [])
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/user/user-posts", { withCredentials: true })
+    api.get("/api/user/user-posts")
       .then((res) => {
         setPosts(res.data.userPosts || [])
         setLoading(false)
@@ -71,10 +71,9 @@ function CurrProfile() {
     }
 
     const delay = setTimeout(() => {
-      axios.post(
-        "http://localhost:5000/api/user/search-profiles",
-        { search: searchQuery },
-        { withCredentials: true }
+      api.post(
+        "/api/user/search-profiles",
+        { search: searchQuery }
       )
         .then((res) => {
           setSearchedUsers(res.data.foundUser || [])
@@ -98,12 +97,13 @@ function CurrProfile() {
 
   const handleLogout = async () => {
     try {
-      await axios.post("http://localhost:5000/api/auth/logout", {}, { withCredentials: true })
+      await api.post("/api/auth/logout", {})
       navigate("/")
     } catch (error) {
       console.log(error)
     }
   }
+
 
   return (
     <>

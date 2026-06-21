@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import axios from 'axios'
+import api from '../api/axios'
 import { FiArrowLeft } from 'react-icons/fi'
 
 /* ── SVG Icons ── */
@@ -42,14 +42,14 @@ function Postcard() {
     const navigate = useNavigate()
 
     useEffect(() => {
-        axios.get("http://localhost:5000/api/user/get-userid", { withCredentials: true })
+        api.get("/api/user/get-userid")
             .then((res) => setUserID(res.data.id))
     }, [id])
 
     useEffect(() => {
         const fetchpost = async () => {
             try {
-                const res = await axios.get(`http://localhost:5000/api/user/posts/${id}`, { withCredentials: true })
+                const res = await api.get(`/api/user/posts/${id}`)
                 setImg(res.data.image)
                 setCaption(res.data.caption)
                 setIsOwner(res.data.isOwner)
@@ -66,7 +66,7 @@ function Postcard() {
     const handleSubmit = async (e) => {
         e.preventDefault()
         try {
-            await axios.patch(`http://localhost:5000/api/user/posts/${id}`, { caption }, { withCredentials: true })
+            await api.patch(`/api/user/posts/${id}`, { caption })
             navigate("/")
         } catch (error) {
             console.log(error)
@@ -75,7 +75,7 @@ function Postcard() {
 
     const deletePost = async () => {
         try {
-            await axios.delete(`http://localhost:5000/api/user/posts/${id}`, { withCredentials: true })
+            await api.delete(`/api/user/posts/${id}`)
             navigate("/")
         } catch (error) {
             console.log(error)
@@ -83,7 +83,7 @@ function Postcard() {
     }
 
     const handleLike = async () => {
-        await axios.post(`http://localhost:5000/api/user/posts/${id}/like`, {}, { withCredentials: true })
+        await api.post(`/api/user/posts/${id}/like`, {})
             .then((res) => {
                 setLikes(res.data.likes)
                 setLiked(res.data.liked)
@@ -92,13 +92,14 @@ function Postcard() {
     }
 
     const handleComment = async () => {
-        await axios.post(`http://localhost:5000/api/user/posts/${id}/comment`, { comment }, { withCredentials: true })
+        await api.post(`/api/user/posts/${id}/comment`, { comment })
             .then((res) => {
                 console.log(res.data.message)
                 setComment("")
                 navigate(`/${id}/comments`)
             })
     }
+
 
     return (
         <div className="edit-container">

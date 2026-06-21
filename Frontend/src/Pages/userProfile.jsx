@@ -1,4 +1,4 @@
-import axios from 'axios'
+import api from '../api/axios'
 import React, { useEffect, useState, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { FiArrowLeft, FiGrid, FiLogOut, FiPlus, FiSearch } from 'react-icons/fi'
@@ -27,7 +27,7 @@ function UserProfile() {
 
   // get current logged-in user
   useEffect(() => {
-    axios.get("http://localhost:5000/api/user/get-user", { withCredentials: true })
+    api.get("/api/user/get-user")
       .then((res) => {
         if (res.data.user) {
           setCurrUserID(res.data.user._id)
@@ -40,7 +40,7 @@ function UserProfile() {
 
   // get the profile being viewed
   useEffect(() => {
-    axios.get(`http://localhost:5000/api/user/profiles/${id}`, { withCredentials: true })
+    api.get(`/api/user/profiles/${id}`)
       .then((res) => {
         const profile = res.data
         if (profile) {
@@ -59,7 +59,7 @@ function UserProfile() {
 
   // get this profile's posts
   useEffect(() => {
-    axios.get(`http://localhost:5000/api/user/profiles/${id}/posts`, { withCredentials: true })
+    api.get(`/api/user/profiles/${id}/posts`)
       .then((res) => {
         setPosts(res.data.posts || [])
         setLoading(false)
@@ -90,10 +90,9 @@ function UserProfile() {
     }
 
     const delay = setTimeout(() => {
-      axios.post(
-        "http://localhost:5000/api/user/search-profiles",
-        { search: searchQuery },
-        { withCredentials: true }
+      api.post(
+        "/api/user/search-profiles",
+        { search: searchQuery }
       )
         .then((res) => {
           setSearchedUsers(res.data.foundUser || [])
@@ -117,7 +116,7 @@ function UserProfile() {
 
   const handleLogout = async () => {
     try {
-      await axios.post("http://localhost:5000/api/auth/logout", {}, { withCredentials: true })
+      await api.post("/api/auth/logout", {})
       navigate("/")
     } catch (error) {
       console.log(error)
@@ -125,10 +124,9 @@ function UserProfile() {
   }
 
   const onFollow = async () => {
-    await axios.post(
-      `http://localhost:5000/api/user/profiles/${id}/follow`,
-      {},
-      { withCredentials: true }
+    await api.post(
+      `/api/user/profiles/${id}/follow`,
+      {}
     )
       .then(() => {
         setFollowedToUser((prev) => !prev)
@@ -136,6 +134,7 @@ function UserProfile() {
       })
       .catch((err) => console.log(err))
   }
+
 
   return (
     <>

@@ -1,4 +1,4 @@
-import axios from 'axios'
+import api from '../api/axios'
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { FiArrowLeft } from 'react-icons/fi'
@@ -19,27 +19,26 @@ function Comments() {
     const navigate = useNavigate()
 
     useEffect(() => {
-        axios.get("http://localhost:5000/api/user/get-userid", { withCredentials: true })
+        api.get("/api/user/get-userid")
             .then((res) => setUserID(res.data.id))
             .catch((err) => console.log(err))
     }, [id])
 
     useEffect(() => {
-        axios.get("http://localhost:5000/api/user/get-user", { withCredentials: true })
+        api.get("/api/user/get-user")
             .then((res) => setUsername(res.data.user.username))
             .catch((err) => console.log(err))
     }, [id])
 
     useEffect(() => {
-        axios.get(`http://localhost:5000/api/user/posts/${id}`, { withCredentials: true })
+        api.get(`/api/user/posts/${id}`)
             .then((res) => setComments(res.data.comments))
             .catch((err) => console.log(err))
     }, [userID, id, comment])
 
     const handleDelete = async (index) => {
-        await axios.delete(`http://localhost:5000/api/user/posts/${id}/comment`, {
-            data: { index },
-            withCredentials: true
+        await api.delete(`/api/user/posts/${id}/comment`, {
+            data: { index }
         })
             .then((res) => setComments(res.data.comments))
             .catch((err) => console.log(err))
@@ -47,15 +46,15 @@ function Comments() {
 
     const handleComment = async () => {
         if (!comment.trim()) return
-        await axios.post(
-            `http://localhost:5000/api/user/posts/${id}/comment`,
-            { comment },
-            { withCredentials: true }
+        await api.post(
+            `/api/user/posts/${id}/comment`,
+            { comment }
         ).then((res) => {
             console.log(res.data.message)
             setComment("")
         })
     }
+
 
     const handleKey = (e) => {
         if (e.key === "Enter") handleComment()

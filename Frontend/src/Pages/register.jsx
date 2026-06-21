@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import axios from "axios"
+import api from '../api/axios'
 import { useNavigate } from "react-router-dom"
 
 function Register() {
@@ -11,10 +11,9 @@ function Register() {
     const handleSubmit = async (e) => {
         e.preventDefault()
         try {
-            await axios.post(
-                "http://localhost:5000/api/auth/register",
-                { username, email, password },
-                { withCredentials: true }
+            await api.post(
+                "/api/auth/register",
+                { username, email, password }
             ).then((res) => {
                 console.log(res.data)
                 navigate("/")
@@ -23,6 +22,7 @@ function Register() {
             console.log(error)
         }
     }
+
 
     return (
         <section className="auth-section">

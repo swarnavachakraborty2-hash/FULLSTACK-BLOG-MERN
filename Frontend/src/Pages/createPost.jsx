@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react'
-import axios from "axios"
+import api from '../api/axios'
 import { useNavigate } from "react-router-dom"
 import { FiUploadCloud } from 'react-icons/fi'
 
@@ -12,7 +12,7 @@ const CreatePost = () => {
     const handleSubmit = async (e) => {
         e.preventDefault()
         const formData = new FormData(e.target)
-        await axios.post("http://localhost:5000/api/user/create-post", formData, { withCredentials: true })
+        await api.post("/api/user/create-post", formData)
             .then((res) => {
                 console.log(res.data)
                 navigate("//my-profile")
@@ -22,6 +22,7 @@ const CreatePost = () => {
                 alert("Error creating post")
             })
     }
+
 
     const handleFile = (e) => {
         const file = e.target.files[0]
