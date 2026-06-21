@@ -1,7 +1,7 @@
 import api from '../api/axios'
 import React, { useEffect, useState, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { FiArrowLeft, FiGrid, FiLogOut, FiPlus, FiSearch } from 'react-icons/fi'
+import { FiArrowLeft, FiGrid, FiLogOut, FiPlus, FiSearch, FiHome } from 'react-icons/fi'
 
 function UserProfile() {
   const navigate = useNavigate()
@@ -259,7 +259,7 @@ function UserProfile() {
             onClick={() => navigate("/")}
             style={{ display: "flex", alignItems: "center", gap: 6 }}
           >
-             <span className="nav-btn-text">Feed</span>
+             <FiHome /> <span className="nav-btn-text">Feed</span>
           </button>
 
           <button

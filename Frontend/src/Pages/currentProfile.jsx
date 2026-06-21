@@ -7,7 +7,8 @@ import {
   FiGrid,
   FiLogOut,
   FiPlus,
-  FiSearch
+  FiSearch,
+  FiHome
 } from "react-icons/fi";
 
 function CurrProfile() {
@@ -227,7 +228,7 @@ function CurrProfile() {
             onClick={() => navigate("/")}
             style={{ display: "flex", alignItems: "center", gap: 6 }}
           >
-             <span className="nav-btn-text">Feed</span>
+             <FiHome /> <span className="nav-btn-text">Feed</span>
           </button>
 
           <button
