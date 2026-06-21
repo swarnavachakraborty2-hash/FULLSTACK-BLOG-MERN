@@ -1,11 +1,16 @@
 const authModel = require("../models/auth.model")
 const jwt = require("jsonwebtoken")
+const uploadFile = require("../services/imagekit")
 const bcrypt = require("bcrypt")
 
 
 async function Register(req, res) {
     const { username, email, password } = req.body
 
+    let result = ""
+    if (req.file) {
+        result = await uploadFile(req.file.buffer)// profile pic
+    }
 
     const userAlreadyExists = await authModel.findOne({
         email
@@ -17,13 +22,14 @@ async function Register(req, res) {
     }
 
 
-    const hash = await bcrypt.hash(password, 10)
+    const hashedPassword = await bcrypt.hash(password, 10)
 
     //storing userdata in db
     const user = await authModel.create({
         username,
-        password: hash,
-        email
+        password: hashedPassword,
+        email,
+        uri: result.url
     })
 
 
@@ -85,4 +91,36 @@ async function Logout(req, res) {
 }
 
 
-module.exports = { Register, Login, Logout}
+async function Follow(req, res) {
+    const userID = req.user.id
+    const id = req.params.id
+
+    const user = await authModel.findOne({_id: id})//user to follow
+    const currUser = await authModel.findOne({ _id: userID })//user who follows
+
+
+    const followed = user.followers.includes(userID)
+
+    if (!followed) {
+
+        user.followers.push(userID)
+
+        currUser.following.push(id)
+
+        await user.save()
+        await currUser.save()
+
+        return res.status(200).json({ message: "followed successfully" })
+    }
+
+    user.followers.pull(userID)
+    currUser.following.pull(id)
+    await user.save()
+    await currUser.save()
+    return res.status(200).json({ message: "unfollowed successfully" })
+
+
+}
+
+
+module.exports = { Register, Login, Logout, Follow }

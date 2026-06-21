@@ -1,6 +1,33 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import axios from 'axios'
+import { FiArrowLeft } from 'react-icons/fi'
+
+/* ── SVG Icons ── */
+const HeartFilled = () => (
+    <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+        <path d="M12 21.593c-.425-.396-8.057-7.496-8.057-12.065 0-3.584 2.916-6.528 6.53-6.528 1.715 0 3.35.68 4.527 1.876C16.172 3.745 17.808 3 19.527 3c3.614 0 6.53 2.944 6.53 6.528 0 4.569-7.631 11.669-8.057 12.065l-3 .001z"/>
+    </svg>
+)
+
+const HeartOutline = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="22" height="22">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+    </svg>
+)
+
+const CommentIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="comment-svg">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+)
+
+const SendIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14">
+        <line x1="22" y1="2" x2="11" y2="13"/>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+    </svg>
+)
 
 function Postcard() {
     const [img, setImg] = useState()
@@ -14,36 +41,21 @@ function Postcard() {
     const { id } = useParams()
     const navigate = useNavigate()
 
-
-    //fetch user details on page load
     useEffect(() => {
-        const fetchuser = async () => {
-            await axios.get("http://localhost:5000/api/user/get-userid", { withCredentials: true })
-                .then((res) => {
-                    setUserID(res.data.id)
-                })
-        }
-        fetchuser()
+        axios.get("http://localhost:5000/api/user/get-userid", { withCredentials: true })
+            .then((res) => setUserID(res.data.id))
     }, [id])
 
-
-    //fetch post after user details
     useEffect(() => {
         const fetchpost = async () => {
             try {
-                const res = await axios.get(
-                    `http://localhost:5000/api/user/posts/${id}`,
-                    { withCredentials: true }
-                )
-
+                const res = await axios.get(`http://localhost:5000/api/user/posts/${id}`, { withCredentials: true })
                 setImg(res.data.image)
                 setCaption(res.data.caption)
                 setIsOwner(res.data.isOwner)
                 setLikes(res.data.likes.length)
                 setComments(res.data.comments.length)
-                if (res.data.likes.includes(userID)) {
-                    setLiked(true)
-                }
+                if (res.data.likes.includes(userID)) setLiked(true)
             } catch (error) {
                 console.log(error)
             }
@@ -51,251 +63,130 @@ function Postcard() {
         fetchpost()
     }, [id, userID])
 
-
-    //update
     const handleSubmit = async (e) => {
         e.preventDefault()
-
         try {
-            await axios.patch(
-                `http://localhost:5000/api/user/posts/${id}`,
-                { caption },
-                { withCredentials: true }
-            )
-
-            navigate("/feed")
-
+            await axios.patch(`http://localhost:5000/api/user/posts/${id}`, { caption }, { withCredentials: true })
+            navigate("/")
         } catch (error) {
             console.log(error)
         }
     }
 
-
-    //delete
     const deletePost = async () => {
         try {
-            await axios.delete(
-                `http://localhost:5000/api/user/posts/${id}`,
-                { withCredentials: true }
-            )
-
-            navigate("/feed")
-
+            await axios.delete(`http://localhost:5000/api/user/posts/${id}`, { withCredentials: true })
+            navigate("/")
         } catch (error) {
             console.log(error)
         }
     }
 
-
-    //like
     const handleLike = async () => {
         await axios.post(`http://localhost:5000/api/user/posts/${id}/like`, {}, { withCredentials: true })
             .then((res) => {
                 setLikes(res.data.likes)
                 setLiked(res.data.liked)
             })
-            .catch((err) => {
-                console.log(err)
-            })
+            .catch((err) => console.log(err))
     }
 
-
-    //comment
     const handleComment = async () => {
         await axios.post(`http://localhost:5000/api/user/posts/${id}/comment`, { comment }, { withCredentials: true })
             .then((res) => {
                 console.log(res.data.message)
                 setComment("")
-                navigate(`/feed/${id}/comments`)
+                navigate(`/${id}/comments`)
             })
     }
 
-
     return (
-        <div className="edit-container ">
-            <button onClick={() => navigate("/feed")}>Back</button>
+        <div className="edit-container">
+            {/* Back button */}
+            <button
+                className="btn-ghost"
+                onClick={() => navigate(-1)}
+                style={{ display: "flex", alignItems: "center", gap: 6 }}
+            >
+                <FiArrowLeft /> Back
+            </button>
+
             <form onSubmit={handleSubmit} className="edit-form">
 
+                {/* Header row */}
+                <div className="post-meta-header">
+                    <span className="post-meta-title">
+                        {isOwner ? "Edit Post" : "View Post"}
+                    </span>
 
-                <div
-                    style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        marginBottom: "20px",
-                        borderBottom: "2px solid #979494",
-                        paddingBottom: "8px"
-                    }}
-                >
-                    <h2
-                        style={{
-                            fontSize: "26px",
-                            fontWeight: "600",
-                            color: "#b6b4b4",
-                            letterSpacing: "0.5px",
-                            margin: 0
-                        }}
-                    >
-                        {isOwner ? "Edit Post :" : "View Post :"}
-                    </h2>
-
-                    <div
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "16px"
-                        }}
-                    >
-                        <div
-                            style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "1px"
-                            }}
+                    <div className="post-actions-row">
+                        {/* Like */}
+                        <button
+                            type="button"
+                            className="like-btn"
+                            onClick={handleLike}
+                            aria-label="Like"
                         >
-                            <button
-                                type="button"
-                                onClick={handleLike}
-                                style={{
-                                    background: "transparent",
-                                    border: "none",
-                                    fontSize: "26px",
-                                    cursor: "pointer",
-                                    color: liked ? "#ff4d4d" : "#bbb",
-                                    display: "flex",
-                                    alignItems: "center"
-                                }}
-                            >
-                                {liked ? "❤️" : "🤍"}
-
-
-                                <span
-                                    style={{
-                                        color: "#ccc",
-                                        fontSize: "14px",
-                                        fontWeight: "500"
-                                    }}
-                                >
-                                    {likes}
-                                </span>
-                            </button>
-                        </div>
-                        <div
-                            onClick={() => { navigate(`/feed/${id}/comments`) }}
-                            style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "4px"
-                            }}
-                        >
-                            <img
-                                src="https://cdn.iconscout.com/icon/free/png-256/comment-3251596-2724645.png"
-                                alt="comment"
-
-                                style={{
-                                    width: "22px",
-                                    height: "22px",
-                                    objectFit: "contain",
-                                    filter: "invert(80%)"
-                                }}
-                            />
-
                             <span
-                                style={{
-                                    color: "#ccc",
-                                    fontSize: "14px",
-                                    fontWeight: "500"
-                                }}
+                                className="like-icon"
+                                style={{ color: liked ? "#f43f5e" : "#64748b" }}
                             >
-                                {comments}
+                                {liked ? <HeartFilled /> : <HeartOutline />}
                             </span>
+                            <span className="like-count">{likes}</span>
+                        </button>
+
+                        {/* Comments */}
+                        <div
+                            className="comment-icon-btn"
+                            onClick={() => navigate(`/${id}/comments`)}
+                        >
+                            <CommentIcon />
+                            <span className="comment-count">{comments}</span>
                         </div>
                     </div>
                 </div>
 
-                <img src={img} alt="" />
+                {/* Image */}
+                <img src={img} alt={caption} />
 
-                {isOwner ? <input
-                    type="text"
-                    name="caption"
-                    value={caption}
-                    onChange={(e) => setCaption(e.target.value)}
-                    placeholder="Edit caption"
+                {/* Caption */}
+                {isOwner ? (
+                    <input
+                        type="text"
+                        name="caption"
+                        value={caption}
+                        onChange={(e) => setCaption(e.target.value)}
+                        placeholder="Edit caption…"
+                    />
+                ) : (
+                    <h4>{caption}</h4>
+                )}
 
-                /> : <h4 style={{ alignContent: "center" }}>{caption}</h4>
-                }
-
-                <div
-                    style={{
-                        marginTop: "10px",
-                        position: "relative",
-                        marginTop: "15px",
-                        display: "flex",
-                        justifyContent: "center"
-                    }}
-                >
-                    <div
-                        style={{
-                            position: "relative",
-                            width: "260px"
-                        }}
-                    >
-                        <input
-                            type="text"
-                            value={comment}
-                            onChange={(e) => setComment(e.target.value)}
-                            placeholder="Add a comment..."
-                            style={{
-                                width: "100%",
-                                height: "40px",
-                                padding: "0 45px 0 12px",
-                                fontSize: "13px",
-                                borderRadius: "20px",
-                                border: "1px solid #555",
-                                background: "#1e1e2f",
-                                color: "#fff",
-                                outline: "none"
-                            }}
-                        />
-                        <button
-                            type="button"
-                            onClick={handleComment}
-                            style={{
-                                position: "absolute",
-                                right: "5px",
-                                top: "50%",
-                                transform: "translateY(-50%)",
-                                height: "30px",
-                                width: "30px",
-                                borderRadius: "50%",
-                                border: "none",
-                                background: "#ff4d4d",
-                                color: "white",
-                                cursor: "pointer",
-                                fontSize: "14px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center"
-                            }}
-                        >
-                            ➤
-                        </button>
-                    </div>
-                </div>
-
-
+                {/* Owner actions */}
                 {isOwner && (
-                    <div className="btn-group" style={{ position: "relative", zIndex: 10 }}>
-                        <button type="submit">Update</button>
-                        <button
-                            type="button"
-                            className="delete"
-                            onClick={deletePost}
-                        >
+                    <div className="btn-group">
+                        <button type="submit">Update Post</button>
+                        <button type="button" className="delete" onClick={deletePost}>
                             Delete
                         </button>
                     </div>
                 )}
+
+                {/* Inline comment */}
+                <div className="inline-comment-bar">
+                    <div className="inline-comment-inner">
+                        <input
+                            type="text"
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                            placeholder="Add a comment…"
+                        />
+                        <button type="button" className="send-btn" onClick={handleComment}>
+                            <SendIcon />
+                        </button>
+                    </div>
+                </div>
             </form>
         </div>
     )

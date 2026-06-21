@@ -1,41 +1,40 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate, useParams } from "react-router-dom"
-import { FiSearch } from "react-icons/fi";
+import { useNavigate } from "react-router-dom"
+import { FiSearch, FiPlus, FiGrid, FiLogOut, FiUserPlus } from "react-icons/fi"
 import axios from "axios"
 
-
-
 const Feed = () => {
-
     const navigate = useNavigate()
     const [posts, setPosts] = useState([])
     const [searchCaption, setSearchCaption] = useState("")
     const [username, setUsername] = useState("")
+    const [profilePic, setProfilePic] = useState("")
+    const [presentUser, setPresentUser] = useState(false)
 
+    //fetching current user details if logged in
     useEffect(() => {
-        const fetchuser = async () => {
-            await axios.get("http://localhost:5000/api/user/get-user", { withCredentials: true })
-                .then((res) => {
-                    setUsername(res.data.user.username)
-                })
-        }
-        fetchuser()
-    }, [])
+        axios.get("http://localhost:5000/api/user/get-user", { withCredentials: true })
+            .then((res) => {
+                if (res.data._id) {
+                    setPresentUser(true)
+                    setUsername(res.data.username)
+                    setProfilePic(res.data.uri)
+                }
+                else {
+                    setPresentUser(false)
+                }
+            }
+            ).catch(() => setPresentUser(false))
+    }, [presentUser])
 
-
-    //fetching posts based on search bar
+    //fetching everyone's post based on search
     useEffect(() => {
-
         const fetchPosts = async () => {
             try {
                 if (searchCaption.trim() === "") {
-                    const res = await axios.get(
-                        "http://localhost:5000/api/user/posts",
-                        { withCredentials: true }
-                    )
+                    const res = await axios.get("http://localhost:5000/api/user/posts", { withCredentials: true })
                     setPosts(res.data.posts)
-                }
-                else {
+                } else {
                     const res = await axios.post(
                         "http://localhost:5000/api/user/search-post",
                         { search: searchCaption },
@@ -47,112 +46,152 @@ const Feed = () => {
                 console.log(err)
             }
         }
-
         const delay = setTimeout(fetchPosts, 400)
-
         return () => clearTimeout(delay)
-
     }, [searchCaption])
 
+    useEffect(()=>{},[])
 
+
+    
     const handleLogout = async () => {
         try {
-            await axios.post("http://localhost:5000/api/auth/logout", {}, {
-                withCredentials: true
-            })
-
+            await axios.post("http://localhost:5000/api/auth/logout", {}, { withCredentials: true })
+            setPresentUser(false)
+            setUsername("")
+            setProfilePic("")
             navigate("/")
-
         } catch (error) {
             console.log(error)
         }
     }
 
     return (
-        <section className='feed-section'>
-            <div className="feed-header">
-                <div
-                    style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "2px"
-                    }}
-                >
-                    <span
-                        style={{
-                            fontSize: "14px",
-                            color: "#aaa",
-                            fontWeight: "500"
-                        }}
-                    >
-                        {username}
-                    </span>
+        <>
+            {/* ── NAVBAR ── */}
+            <nav className="navbar">
+                <div className="navbar-brand">Pixora</div>
 
-                    <h1
-                        style={{
-                            margin: 0
-                        }}
-                    >
-                        Feed
-                    </h1>
+                {/* Search */}
+                <div className="search-bar">
+                    <FiSearch className="search-icon" />
+                    <input
+                        type="text"
+                        value={searchCaption}
+                        onChange={(e) => setSearchCaption(e.target.value)}
+                        placeholder="Search posts…"
+                    />
                 </div>
 
-                <div className="feed-right">
-                    <form className="search-bar">
-                        <input type="text" name='searchCaption' value={searchCaption} onChange={(e) => setSearchCaption(e.target.value)} placeholder="Search posts..." />
-                    </form>
+                {/* Right actions */}
+                <div className="navbar-right">
+                    <button onClick={() => presentUser ? navigate("/create-post") : navigate("/login")} title="Create Post">
+                        <FiPlus style={{ marginRight: 6, verticalAlign: "middle" }} />
+                        Create
+                    </button>
 
-                    <div className="feed-actions">
-                        <button onClick={() => navigate("/create-post")}>+ Create</button>
-                        <button onClick={() => navigate("/my-feed")}>My Posts</button>
-                        <button onClick={() => navigate("/")}>Register</button>
-                        <button className="logout-btn" onClick={handleLogout}>
-                            Logout
-                        </button>
-                    </div>
+
+
+                    <button className="btn-ghost" onClick={() => navigate("/register")} title="Register">
+                        <FiUserPlus style={{ verticalAlign: "middle" }} />
+                    </button>
+
+                    {username && (
+                        <span
+                        onClick={()=>navigate("/my-profile")}
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
+                            fontFamily: "'Clash Display', sans-serif",
+                            fontSize: 13,
+                            color: "#6c8bff",
+                            fontWeight: 600,
+                            padding: "6px 10px",
+                            background: "rgba(108,139,255,.1)",
+                            borderRadius: 8,
+                            border: "1px solid rgba(108,139,255,.2)",
+                            cursor: "pointer"
+                        }}>
+                            <div style={{
+                                width: 22,
+                                height: 22,
+                                borderRadius: "50%",
+                                background: "linear-gradient(135deg, #6c8bff, #a78bfa)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                fontSize: 11,
+                                fontWeight: 700,
+                                color: "white",
+                                flexShrink: 0,
+                                overflow: "hidden"
+                            }}>
+                                {profilePic
+                                    ? <img src={profilePic} alt={username} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                    : username?.[0]?.toUpperCase()
+                                }
+                            </div>
+                            @{username}
+                        </span>
+                    )}
+
+                   { presentUser && <button className="logout-btn" onClick={handleLogout}>
+                        <FiLogOut style={{ verticalAlign: "middle" }} />
+                    </button>}
                 </div>
-            </div>
+            </nav>
 
-            <div className="grid">
-                {posts && posts.length > 0 ? (
-                    posts.map((post) => (
+            {/* ── FEED ── */}
+            <section className="feed-section">
+                <h1 className="feed-page-title">Discover</h1>
 
-                        <div
-                            key={post._id}
-                            className='post-card'
-                            onClick={() => navigate(`/feed/${post._id}`)}
-                            style={{ position: "relative" }}
-                        >
-
+                <div className="grid">
+                    {posts && posts.length > 0 ? (
+                        posts.map((post) => (
                             <div
-                                className='post-card'
-                                onClick={() => navigate(`/feed/${post._id}`)}
-                                style={{ position: "relative" }}
+                                key={post._id}
+                                className="post-card"
+                                onClick={() =>  presentUser ? navigate(`/${post._id}`) : navigate("/login")}
                             >
                                 <img src={post.uri} alt={post.caption} />
-                                <span
-                                    style={{
-                                        fontSize: "13px",
-                                        color: "#aaa",
-                                        marginBottom: "4px",
-                                        paddingLeft: "4px"
-                                    }}
-                                >
-                                    {post.user_id.username}
-                                    <p style={{marginLeft:"-8px",marginTop:"-6px"}}>{post.caption}</p>
-                                </span>
-                                
+                                <div className="post-card-body">
+                                    <p className="post-card-author" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                        <span style={{
+                                            width: 22,
+                                            height: 22,
+                                            borderRadius: "50%",
+                                            background: "linear-gradient(135deg, #6c8bff, #a78bfa)",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            fontSize: 11,
+                                            fontWeight: 700,
+                                            color: "white",
+                                            flexShrink: 0,
+                                            overflow: "hidden"
+                                        }}>
+                                            {post.user_id.uri
+                                                ? <img src={post.user_id.uri} alt={post.user_id.username} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                                : post.user_id.username?.[0]?.toUpperCase()
+                                            }
+                                        </span>
+                                        @{post.user_id.username}
+                                    </p>
+                                    <p className="post-card-caption">{post.caption}</p>
+                                </div>
                             </div>
-
+                        ))
+                    ) : (
+                        <div className="empty-state">
+                            <span className="empty-state-icon">🖼️</span>
+                            <h2>No posts yet</h2>
+                            <p>Be the first to share something beautiful.</p>
                         </div>
-                    ))
-                ) : (
-                    <h2 style={{ textAlign: "center", width: "100%" }}>
-                        No posts available
-                    </h2>
-                )}
-            </div>
-        </section>
+                    )}
+                </div>
+            </section>
+        </>
     )
 }
 

@@ -10,26 +10,18 @@ function Login() {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-
         if (!username && !email) {
             alert("Enter either username or email")
             return
         }
-
         try {
             const res = await axios.post(
                 "http://localhost:5000/api/auth/login",
-                {
-                    username,
-                    email,
-                    password
-                },
+                { username, email, password },
                 { withCredentials: true }
             )
-
             console.log(res.data)
-            navigate("/feed")
-
+            navigate("/")
         } catch (error) {
             console.log(error)
             alert("Login failed")
@@ -39,42 +31,52 @@ function Login() {
     return (
         <section className="auth-section">
             <div className="auth-card">
-                <h1>Log in to your Account</h1>
-                <p className="auth-hint">
-                    Use either username or email to login
-                </p>
+                <div className="auth-logo">Pixora</div>
+                <h1>Welcome back</h1>
+
+                <p className="auth-hint">Use username or email to sign in</p>
 
                 <form onSubmit={handleSubmit}>
-                    <input
-                        name='username'
-                        type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        placeholder='enter your username (or use email)'
-                    />
+                    <label>
+                        Username
+                        <input
+                            name="username"
+                            type="text"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            placeholder="yourhandle (or use email)"
+                        />
+                    </label>
 
-                    <input
-                        name='email'
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder='enter your email (or use username)'
-                    />
+                    <label>
+                        Email
+                        <input
+                            name="email"
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="you@example.com (or use username)"
+                        />
+                    </label>
 
-                    <input
-                        name='password'
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder='enter your password'
-                        required
-                    />
+                    <label>
+                        Password
+                        <input
+                            name="password"
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="••••••••"
+                            required
+                        />
+                    </label>
 
-                    <button type="submit">Login</button>
+                    <button type="submit">Sign In</button>
                 </form>
+
                 <p className="auth-switch">
                     Don't have an account?{" "}
-                    <span onClick={() => navigate("/")}>Register</span>
+                    <span onClick={() => navigate("/register")}>Register</span>
                 </p>
             </div>
         </section>

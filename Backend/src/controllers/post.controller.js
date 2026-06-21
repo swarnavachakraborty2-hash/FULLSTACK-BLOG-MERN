@@ -27,19 +27,14 @@ async function createPost(req, res) {
 
 async function getPosts(req, res) {
 
-    if (req.user) {
-        const posts = await postModel.find().populate("user_id", "username").limit(30)
 
-        return res.status(200).json({
-            message: "Posts fetched successfully",
-            posts
-        })
-    }
-    else {
-        return res.status(401).json({
-            message: "cant get posts"
-        })
-    }
+    const posts = await postModel.find().populate("user_id", "username uri").limit(30)
+
+    return res.status(200).json({
+        message: "Posts fetched successfully",
+        posts
+    })
+
 
 }
 
@@ -99,7 +94,7 @@ async function updatePosts(req, res) {//needs to pass a paramter object with key
 async function getPost(req, res) {
 
     const id = req.params.id
-    const post = await postModel.findById(id).populate("comments.id","username")
+    const post = await postModel.findById(id).populate("comments.id", "username")
 
     const userid = req.user.id
 
@@ -121,7 +116,7 @@ async function getPost(req, res) {
 
 
 
-async function getUserPosts(req, res) {
+async function getMyPosts(req, res) {
 
     const userPosts = await postModel.find({
         user_id: req.user.id
@@ -222,27 +217,27 @@ async function deleteComment(req, res) {
 
     const id = req.user.id
     const postID = req.params.id
-    const {index} = req.body //provide the index of the comment to be deleted 
+    const { index } = req.body //provide the index of the comment to be deleted 
 
-    const post = await postModel.findOne({_id: postID})
+    const post = await postModel.findOne({ _id: postID })
 
     //find the comment{} based on provided index of the comment
     const foundComment = post.comments[index]
 
-   //checks ownership
-   if(foundComment.id.toString() == id){
+    //checks ownership
+    if (foundComment.id.toString() == id) {
 
-    post.comments.splice(index,1) //delete the comment from the comments array whose index was provided 
-    await post.save()
+        post.comments.splice(index, 1) //delete the comment from the comments array whose index was provided 
+        await post.save()
+
+        return res.status(200).json({
+            message: "comment deleted successfully",
+            comments: post.comments
+        })
+    }
 
     return res.status(200).json({
-        message:"comment deleted successfully",
-        comments: post.comments
-    })
-   }
-
-   return res.status(200).json({
-        message:"can't delete comment",
+        message: "can't delete comment",
         comments: post.comments
     })
 
@@ -256,23 +251,119 @@ async function getUserID(req, res) {
 
     const user = await authModel.findOne({ _id: userID })
 
+    if (userID) {
+        return res.status(200).json({
+            message: "user fetched successfully",
+            id: user._id.toString()
+        })
+    }
     return res.status(200).json({
-        message: "user fetched successfully",
-        id: user._id.toString()
+        message: "user not logged in"
     })
 
 }
 
-async function getUser(req,res){
 
-     const userID = req.user.id
+
+async function getCurrentUser(req, res) {
+
+    if (req.user.id) {//check if user is logged in or not 
+
+        const userID = req.user.id
+        const user = await authModel.findOne({ _id: userID })
+
+        if (userID) {
+            return res.status(200).json({
+                message: "user fetched successfully",
+                _id: user._id.toString(),
+                username: user.username,
+                uri: user.uri,
+                followers: user.followers.map((follower) => follower.toString()),
+                following: user.following.map((user) => user.toString())
+            })
+        }
+    }
+    else {
+        return res.status(200).json({
+            message: "user not logged in"
+        })
+    }
+}
+
+
+
+async function getUsers(req, res) {
+
+
+    const users = await authModel.find()
+
+    if (users) {
+        return res.status(200).json({
+            message: "users fetched successfully",
+            users
+        })
+    } else {
+        return res.status(200).json({
+            message: "no users found"
+        })
+    }
+}
+
+
+async function searchUser(req, res) {
+
+    const {search} = req.body
+
+
+    const foundUser = await authModel.find({
+        username: search
+    })
+
+    return res.status(200).json({
+        message:"user fetched successfully",
+        foundUser
+    })
+
+
+}
+
+
+async function getUserProfile(req, res) {
+
+    const currUser = req.user.id
+    const userID = req.params.id
 
     const user = await authModel.findOne({ _id: userID })
 
+    if (user) {
+        return res.status(200).json({
+            message: "user fetched successfully",
+            _id: userID.toString(),
+            username: user.username,
+            uri: user.uri,
+            followers: user.followers.map((follower) => follower.toString()),
+            following: user.following.map((user) => user.toString())
+        })
+    }
     return res.status(200).json({
-        message: "user fetched successfully",
-        user
+        message: "user not found"
     })
+
 }
 
-module.exports = { createPost, getPost, getPosts, deletePost, updatePosts, getUserPosts, searchPost, likePost, getUserID, getUser, commentPost, deleteComment }
+
+async function getUserPosts(req, res) {
+
+    const userID = req.params.id
+
+
+    const posts = await postModel.find({ user_id: userID })
+
+    return res.status(200).json({
+        message: "user's posts fetched successfully",
+        posts
+    })
+
+}
+
+module.exports = { createPost, getPost, getPosts, deletePost, updatePosts, getMyPosts, searchPost, likePost, getUserID, getCurrentUser, commentPost, deleteComment, getUsers, getUserProfile, getUserPosts, searchUser }

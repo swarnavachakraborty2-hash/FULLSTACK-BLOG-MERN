@@ -1,9 +1,16 @@
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { FiArrowLeft } from 'react-icons/fi'
+
+const SendIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14">
+        <line x1="22" y1="2" x2="11" y2="13"/>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+    </svg>
+)
 
 function Comments() {
-
     const [comments, setComments] = useState([])
     const [comment, setComment] = useState("")
     const [userID, setUserID] = useState()
@@ -11,175 +18,128 @@ function Comments() {
     const { id } = useParams()
     const navigate = useNavigate()
 
-
     useEffect(() => {
-        const fetchuser = async () => {
-            await axios.get("http://localhost:5000/api/user/get-userid", { withCredentials: true })
-                .then((res) => {
-                    setUserID(res.data.id)
-                })
-                .catch((err) => {
-                    console.log(err)
-                })
-        }
-        fetchuser()
+        axios.get("http://localhost:5000/api/user/get-userid", { withCredentials: true })
+            .then((res) => setUserID(res.data.id))
+            .catch((err) => console.log(err))
     }, [id])
 
     useEffect(() => {
-        const fetchuser = async () => {
-            await axios.get("http://localhost:5000/api/user/get-user", { withCredentials: true })
-                .then((res) => {
-                    setUsername(res.data.user.username)
-                })
-                .catch((err) => {
-                    console.log(err)
-                })
-        }
-        fetchuser()
+        axios.get("http://localhost:5000/api/user/get-user", { withCredentials: true })
+            .then((res) => setUsername(res.data.user.username))
+            .catch((err) => console.log(err))
     }, [id])
 
-    // fetch comments on page load
     useEffect(() => {
-        const fetchComments = async () => {
-            await axios.get(`http://localhost:5000/api/user/posts/${id}`, { withCredentials: true })
-                .then((res) => {
-                    setComments(res.data.comments)
-                })
-                .catch((err) => {
-                    console.log(err)
-                })
-        }
-        fetchComments()
-    }, [userID, id, comment, comments])
-
+        axios.get(`http://localhost:5000/api/user/posts/${id}`, { withCredentials: true })
+            .then((res) => setComments(res.data.comments))
+            .catch((err) => console.log(err))
+    }, [userID, id, comment])
 
     const handleDelete = async (index) => {
         await axios.delete(`http://localhost:5000/api/user/posts/${id}/comment`, {
-            data: { index: index },
+            data: { index },
             withCredentials: true
         })
-            .then((res) => {
-                setComments(res.data.comments)
-            })
-            .catch((err) => {
-                console.log(err)
-            })
+            .then((res) => setComments(res.data.comments))
+            .catch((err) => console.log(err))
     }
 
     const handleComment = async () => {
-        await axios.post(`http://localhost:5000/api/user/posts/${id}/comment`, { comment }, { withCredentials: true })
-            .then((res) => {
-                console.log(res.data.message)
-                setComment("")
-            })
+        if (!comment.trim()) return
+        await axios.post(
+            `http://localhost:5000/api/user/posts/${id}/comment`,
+            { comment },
+            { withCredentials: true }
+        ).then((res) => {
+            console.log(res.data.message)
+            setComment("")
+        })
     }
 
+    const handleKey = (e) => {
+        if (e.key === "Enter") handleComment()
+    }
 
     return (
-        <section className="comments-section">
+        <>
+            <section className="comments-section">
+                {/* Header */}
+                <div className="comments-header">
+                    <button
+                        className="btn-ghost"
+                        onClick={() => navigate(-1)}
+                        style={{ display: "flex", alignItems: "center", gap: 6 }}
+                    >
+                        <FiArrowLeft /> Back
+                    </button>
+                    <h2>Comments</h2>
+                    <span style={{
+                        marginLeft: "auto",
+                        fontSize: 12,
+                        color: "#6c8bff",
+                        fontWeight: 700,
+                        background: "rgba(108,139,255,.1)",
+                        border: "1px solid rgba(108,139,255,.2)",
+                        borderRadius: 8,
+                        padding: "4px 10px"
+                    }}>
+                        {comments.length}
+                    </span>
+                </div>
 
-            {/* 🔹 HEADER */}
-            <div className="comments-header">
-                <button onClick={() => navigate(-1)}>Back</button>
-                <h2>Comments</h2>
-            </div>
-
-            <div className="comments-list">
-                {comments.length > 0 ? (
-                    comments.map((c, index) => (
-                        <div key={index} className="comment-wrapper">
-
-                            {
-                                (c.id.username == username) ? <span className="comment-username">
-                                    you
-                                </span> :
-                                    <span className="comment-username">
-                                        {c.id.username}
-                                    </span>
-                            }
-
-
-                            <div className="comment-card">
-                                <p>{c.comment}</p>
-                                {
-                                    (c.id._id == userID) &&
-                                    <button onClick={() => { handleDelete(index) }} className="delete-btn">
-                                        Delete
-                                    </button>
-                                }
+                {/* Comment list */}
+                <div className="comments-list">
+                    {comments.length > 0 ? (
+                        comments.map((c, index) => (
+                            <div key={index} className="comment-wrapper">
+                                <span className="comment-username">
+                                    {c.id.username === username ? "you" : `@${c.id.username}`}
+                                </span>
+                                <div className="comment-card">
+                                    <p>{c.comment}</p>
+                                    {c.id._id === userID && (
+                                        <button
+                                            className="delete-btn"
+                                            onClick={() => handleDelete(index)}
+                                        >
+                                            Delete
+                                        </button>
+                                    )}
+                                </div>
                             </div>
-
+                        ))
+                    ) : (
+                        <div className="empty-state">
+                            <span className="empty-state-icon">💬</span>
+                            <h2>No comments yet</h2>
+                            <p>Start the conversation below.</p>
                         </div>
-                    ))
-                ) : (
-                    <h3 style={{ textAlign: "center", color: "#aaa" }}>
-                        No comments yet
-                    </h3>
-                )}
-            </div>
-            <div
-                style={{
-                    position: "fixed",
-                    bottom: "0",
-                    left: "0",
-                    width: "100%",
-                    background: "#1e1e2f",
-                    padding: "10px",
-                    display: "flex",
-                    justifyContent: "center",
-                    zIndex: 1000
-                }}
-            >
-                <div
-                    style={{
-                        position: "relative",
-                        width: "260px"
-                    }}
-                >
+                    )}
+                </div>
+            </section>
+
+            {/* Sticky comment bar */}
+            <div className="comment-input-bar">
+                <div className="comment-input-inner">
                     <input
                         type="text"
                         value={comment}
                         onChange={(e) => setComment(e.target.value)}
-                        placeholder="Add a comment..."
-                        style={{
-                            width: "100%",
-                            height: "40px",
-                            padding: "0 45px 0 12px",
-                            fontSize: "13px",
-                            borderRadius: "20px",
-                            border: "1px solid #555",
-                            background: "#1e1e2f",
-                            color: "#fff",
-                            outline: "none"
-                        }}
+                        onKeyDown={handleKey}
+                        placeholder="Write a comment…"
                     />
                     <button
                         type="button"
+                        className="send-btn"
                         onClick={handleComment}
-                        style={{
-                            position: "absolute",
-                            right: "5px",
-                            top: "50%",
-                            transform: "translateY(-50%)",
-                            height: "30px",
-                            width: "30px",
-                            borderRadius: "50%",
-                            border: "none",
-                            background: "#ff4d4d",
-                            color: "white",
-                            cursor: "pointer",
-                            fontSize: "14px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center"
-                        }}
+                        style={{ right: 6, top: "50%", transform: "translateY(-50%)", position: "absolute" }}
                     >
-                        ➤
+                        <SendIcon />
                     </button>
                 </div>
             </div>
-
-        </section>
+        </>
     )
 }
 

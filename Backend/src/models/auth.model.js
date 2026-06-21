@@ -14,9 +14,22 @@ const authSchema = mongoose.Schema({
     password: {
         type: String,
         required: true,
-    }
+    },
+    uri: {
+        type: String
+    },
+    followers: [
+        {
+            type: mongoose.Schema.Types.ObjectId
+        }
+    ],
+    following: [
+        {
+            type: mongoose.Schema.Types.ObjectId
+        }
+    ]
 })
 
-const authModel = mongoose.model("user",authSchema)
+const authModel = mongoose.model("user", authSchema)
 
 module.exports = authModel
