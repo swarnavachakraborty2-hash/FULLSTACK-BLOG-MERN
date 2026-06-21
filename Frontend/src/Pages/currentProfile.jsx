@@ -111,7 +111,7 @@ function CurrProfile() {
       <nav className="navbar">
         <div className="navbar-brand">Pixora</div>
         {/* User search with dropdown */}
-        <div className="search-bar"  ref={searchRef} style={{ position: "relative" , left:"60px" }}>
+        <div className="search-bar" ref={searchRef} style={{ position: "relative" }}>
           <FiSearch className="search-icon" />
           <input
             type="text"
@@ -219,7 +219,7 @@ function CurrProfile() {
             onClick={() => navigate(-1)}
             style={{ display: "flex", alignItems: "center", gap: 6 }}
           >
-            <FiArrowLeft /> Back
+            <FiArrowLeft /> <span className="nav-btn-text">Back</span>
           </button>
 
           <button
@@ -227,7 +227,7 @@ function CurrProfile() {
             onClick={() => navigate("/")}
             style={{ display: "flex", alignItems: "center", gap: 6 }}
           >
-             Feed
+             <span className="nav-btn-text">Feed</span>
           </button>
 
           <button
@@ -235,7 +235,7 @@ function CurrProfile() {
             onClick={handleLogout}
             style={{ display: "flex", alignItems: "center", gap: 6 }}
           >
-            <FiLogOut size={14} /> Logout
+            <FiLogOut size={14} /> <span className="nav-btn-text">Logout</span>
           </button>
         </div>
       </nav>

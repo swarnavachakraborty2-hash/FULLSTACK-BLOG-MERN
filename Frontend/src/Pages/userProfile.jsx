@@ -251,7 +251,7 @@ function UserProfile() {
             onClick={() => navigate(-1)}
             style={{ display: "flex", alignItems: "center", gap: 6 }}
           >
-            <FiArrowLeft /> Back
+            <FiArrowLeft /> <span className="nav-btn-text">Back</span>
           </button>
 
           <button
@@ -259,7 +259,7 @@ function UserProfile() {
             onClick={() => navigate("/")}
             style={{ display: "flex", alignItems: "center", gap: 6 }}
           >
-             Feed
+             <span className="nav-btn-text">Feed</span>
           </button>
 
           <button
@@ -267,7 +267,7 @@ function UserProfile() {
             onClick={handleLogout}
             style={{ display: "flex", alignItems: "center", gap: 6 }}
           >
-            <FiLogOut size={14} /> Logout
+            <FiLogOut size={14} /> <span className="nav-btn-text">Logout</span>
           </button>
         </div>
       </nav>

@@ -84,12 +84,14 @@ const Feed = () => {
 
                 {/* Right actions */}
                 <div className="navbar-right">
-                    <button onClick={() => presentUser ? navigate("/create-post") : navigate("/login")} title="Create Post">
-                        <FiPlus style={{ marginRight: 6, verticalAlign: "middle" }} />
-                        Create
+                    <button 
+                        onClick={() => presentUser ? navigate("/create-post") : navigate("/login")} 
+                        title="Create Post"
+                        style={{ display: "flex", alignItems: "center", gap: 4 }}
+                    >
+                        <FiPlus />
+                        <span className="nav-btn-text">Create</span>
                     </button>
-
-
 
                     <button className="btn-ghost" onClick={() => navigate("/register")} title="Register">
                         <FiUserPlus style={{ verticalAlign: "middle" }} />
@@ -97,21 +99,22 @@ const Feed = () => {
 
                     {username && (
                         <span
-                        onClick={()=>navigate("/my-profile")}
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 8,
-                            fontFamily: "'Clash Display', sans-serif",
-                            fontSize: 13,
-                            color: "#6c8bff",
-                            fontWeight: 600,
-                            padding: "6px 10px",
-                            background: "rgba(108,139,255,.1)",
-                            borderRadius: 8,
-                            border: "1px solid rgba(108,139,255,.2)",
-                            cursor: "pointer"
-                        }}>
+                            onClick={() => navigate("/my-profile")}
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 8,
+                                fontFamily: "'Clash Display', sans-serif",
+                                fontSize: 13,
+                                color: "#6c8bff",
+                                fontWeight: 600,
+                                padding: "6px 10px",
+                                background: "rgba(108,139,255,.1)",
+                                borderRadius: 8,
+                                border: "1px solid rgba(108,139,255,.2)",
+                                cursor: "pointer"
+                            }}
+                        >
                             <div style={{
                                 width: 22,
                                 height: 22,
@@ -131,13 +134,15 @@ const Feed = () => {
                                     : username?.[0]?.toUpperCase()
                                 }
                             </div>
-                            @{username}
+                            <span className="nav-username-text">@{username}</span>
                         </span>
                     )}
 
-                   { presentUser && <button className="logout-btn" onClick={handleLogout}>
-                        <FiLogOut style={{ verticalAlign: "middle" }} />
-                    </button>}
+                    {presentUser && (
+                        <button className="logout-btn" onClick={handleLogout}>
+                            <FiLogOut style={{ verticalAlign: "middle" }} />
+                        </button>
+                    )}
                 </div>
             </nav>
 

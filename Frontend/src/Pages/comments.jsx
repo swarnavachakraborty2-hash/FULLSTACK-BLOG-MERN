@@ -70,9 +70,10 @@ function Comments() {
                         onClick={() => navigate(-1)}
                         style={{ display: "flex", alignItems: "center", gap: 6 }}
                     >
-                        <FiArrowLeft /> Back
+                        <FiArrowLeft /> <span className="nav-btn-text">Back</span>
                     </button>
                     <h2>Comments</h2>
+
                     <span style={{
                         marginLeft: "auto",
                         fontSize: 12,

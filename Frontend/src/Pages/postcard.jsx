@@ -109,7 +109,7 @@ function Postcard() {
                 onClick={() => navigate(-1)}
                 style={{ display: "flex", alignItems: "center", gap: 6 }}
             >
-                <FiArrowLeft /> Back
+                <FiArrowLeft /> <span className="nav-btn-text">Back</span>
             </button>
 
             <form onSubmit={handleSubmit} className="edit-form">
