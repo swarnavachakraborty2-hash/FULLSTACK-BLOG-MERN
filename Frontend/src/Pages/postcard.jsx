@@ -37,19 +37,25 @@ function Postcard() {
     const [liked, setLiked] = useState(false)
     const [comment, setComment] = useState("")
     const [comments, setComments] = useState(0)
+    const [username, setUsername] = useState("")
+    const [profilePic, setProfilePic] = useState("")
     const [userID, setUserID] = useState()
+    const [ID, setID] = useState()
     const { id } = useParams()
     const navigate = useNavigate()
 
+    // get logged-in user's id
     useEffect(() => {
         api.get("/api/user/get-userid")
             .then((res) => setUserID(res.data.id))
     }, [id])
 
+    // get post details
     useEffect(() => {
         const fetchpost = async () => {
             try {
                 const res = await api.get(`/api/user/posts/${id}`)
+                setID(res.data.user_id)
                 setImg(res.data.image)
                 setCaption(res.data.caption)
                 setIsOwner(res.data.isOwner)
@@ -62,6 +68,21 @@ function Postcard() {
         }
         fetchpost()
     }, [id, userID])
+
+    // get post author details
+    useEffect(() => {
+        if (!ID) return
+        const fetchAuthor = async () => {
+            try {
+                const res = await api.get(`/api/user/profiles/${ID}`)
+                setUsername(res.data.user.username)
+                setProfilePic(res.data.user.uri)
+            } catch (error) {
+                console.log(error)
+            }
+        }
+        fetchAuthor()
+    }, [ID])
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -92,36 +113,102 @@ function Postcard() {
     }
 
     const handleComment = async () => {
+        if (!comment.trim()) return
         await api.post(`/api/user/posts/${id}/comment`, { comment })
-            .then((res) => {
-                console.log(res.data.message)
+            .then(() => {
                 setComment("")
                 navigate(`/${id}/comments`)
             })
+            .catch((err) => console.log(err))
     }
-
 
     return (
         <div className="edit-container">
+
             {/* Back button */}
             <button
                 className="btn-ghost"
                 onClick={() => navigate(-1)}
                 style={{ display: "flex", alignItems: "center", gap: 6 }}
             >
-                <FiArrowLeft /> <span className="nav-btn-text">Back</span>
+                <FiArrowLeft /> Back
             </button>
 
             <form onSubmit={handleSubmit} className="edit-form">
 
-                {/* Header row */}
+                {/* ── Header: author info + like/comment ── */}
                 <div className="post-meta-header">
-                    <span className="post-meta-title">
-                        {isOwner ? "Edit Post" : "View Post"}
-                    </span>
 
+                    {/* Author — click to visit their profile */}
+                    <div
+                        onClick={() => navigate(`/profile/${ID}`)}
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 10,
+                            cursor: "pointer",
+                        }}
+                    >
+                        {/* Avatar */}
+                        <div style={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: "50%",
+                            background: "linear-gradient(135deg, #6c8bff, #a78bfa)",
+                            overflow: "hidden",
+                            flexShrink: 0,
+                            border: "2px solid rgba(108,139,255,0.35)",
+                            boxShadow: "0 0 0 2px #070b14"
+                        }}>
+                            {profilePic ? (
+                                <img
+                                    src={profilePic}
+                                    alt={username}
+                                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                />
+                            ) : (
+                                <div style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontSize: 16,
+                                    fontWeight: 700,
+                                    color: "white",
+                                    fontFamily: "'Clash Display', sans-serif"
+                                }}>
+                                    {username?.[0]?.toUpperCase() || "?"}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Username + edit badge */}
+                        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                            <span style={{
+                                fontFamily: "'Clash Display', sans-serif",
+                                fontSize: 15,
+                                fontWeight: 700,
+                                color: "#e8eaf6",
+                                lineHeight: 1
+                            }}>
+                                @{username}
+                            </span>
+                            {isOwner && (
+                                <span style={{
+                                    fontSize: 11,
+                                    color: "#6c8bff",
+                                    fontWeight: 600,
+                                    letterSpacing: "0.03em"
+                                }}>
+                                    ✎ your post
+                                </span>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Like + Comment */}
                     <div className="post-actions-row">
-                        {/* Like */}
                         <button
                             type="button"
                             className="like-btn"
@@ -137,7 +224,6 @@ function Postcard() {
                             <span className="like-count">{likes}</span>
                         </button>
 
-                        {/* Comments */}
                         <div
                             className="comment-icon-btn"
                             onClick={() => navigate(`/${id}/comments`)}
@@ -148,10 +234,10 @@ function Postcard() {
                     </div>
                 </div>
 
-                {/* Image */}
+                {/* ── Image ── */}
                 <img src={img} alt={caption} />
 
-                {/* Caption */}
+                {/* ── Caption ── */}
                 {isOwner ? (
                     <input
                         type="text"
@@ -164,7 +250,7 @@ function Postcard() {
                     <h4>{caption}</h4>
                 )}
 
-                {/* Owner actions */}
+                {/* ── Owner actions ── */}
                 {isOwner && (
                     <div className="btn-group">
                         <button type="submit">Update Post</button>
@@ -174,13 +260,14 @@ function Postcard() {
                     </div>
                 )}
 
-                {/* Inline comment */}
+                {/* ── Inline comment input ── */}
                 <div className="inline-comment-bar">
                     <div className="inline-comment-inner">
                         <input
                             type="text"
                             value={comment}
                             onChange={(e) => setComment(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && handleComment()}
                             placeholder="Add a comment…"
                         />
                         <button type="button" className="send-btn" onClick={handleComment}>
@@ -188,6 +275,7 @@ function Postcard() {
                         </button>
                     </div>
                 </div>
+
             </form>
         </div>
     )

@@ -104,6 +104,7 @@ async function getPost(req, res) {
     }
 
     return res.status(200).json({
+        user_id: post.user_id.toString(),
         message: "post found",
         image: post.uri,
         caption: post.caption,
@@ -338,11 +339,13 @@ async function getUserProfile(req, res) {
     if (user) {
         return res.status(200).json({
             message: "user fetched successfully",
-            _id: userID.toString(),
-            username: user.username,
-            uri: user.uri,
-            followers: user.followers.map((follower) => follower.toString()),
-            following: user.following.map((user) => user.toString())
+             user: {                                        
+                _id: user._id.toString(),
+                username: user.username,
+                uri: user.uri,
+                followers: user.followers.map((f) => f.toString()),
+                following: user.following.map((f) => f.toString())
+            }
         })
     }
     return res.status(200).json({

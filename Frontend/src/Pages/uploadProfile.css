@@ -1,0 +1,110 @@
+
+
+.auth-card.avatar-upload-card {
+  width: 360px;
+}
+
+.eyebrow {
+  font-family: 'Clash Display', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background: var(--grad-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 6px;
+}
+
+.avatar-ring-upload {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  margin: 0 auto 24px;
+  border-radius: 50%;
+  padding: 3px;
+  background: linear-gradient(135deg, #6c8bff, #a78bfa, #38bdf8);
+  box-shadow: 0 0 0 4px var(--bg), 0 8px 32px rgba(108, 139, 255, 0.4);
+  cursor: pointer;
+  transition: box-shadow 0.25s ease, transform 0.2s ease;
+}
+
+.avatar-ring-upload:hover {
+  box-shadow: 0 0 0 4px var(--bg), 0 8px 40px rgba(108, 139, 255, 0.55);
+  transform: translateY(-2px);
+}
+
+.avatar-ring-upload:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 6px;
+}
+
+.avatar-ring-upload.is-drag {
+  box-shadow: 0 0 0 4px var(--bg), 0 0 0 8px rgba(108, 139, 255, 0.25);
+}
+
+.avatar-ring-upload .profile-avatar,
+.avatar-ring-upload .profile-avatar-fallback {
+  width: 100%;
+  height: 100%;
+}
+
+.avatar-ring-upload.is-uploading {
+  animation: ring-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes ring-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 4px var(--bg), 0 8px 32px rgba(108, 139, 255, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 4px var(--bg), 0 8px 44px rgba(108, 139, 255, 0.75);
+  }
+}
+
+.upload-hidden-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.avatar-upload-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.avatar-upload-actions button {
+  width: 100%;
+}
+
+.avatar-upload-actions button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.auth-hint.is-error {
+  color: var(--danger);
+  background: rgba(244, 63, 94, 0.1);
+}
+
+.auth-hint.is-success {
+  color: var(--success);
+  background: rgba(52, 211, 153, 0.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .avatar-ring-upload.is-uploading {
+    animation: none;
+  }
+}

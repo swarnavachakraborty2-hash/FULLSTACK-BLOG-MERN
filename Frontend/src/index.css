@@ -1173,4 +1173,4 @@ input::placeholder { color: var(--muted); }
   .profile-posts-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
   .profile-post-tile img { height: 180px; }
   .profile-skeleton-card { height: 180px; }
-}
+}

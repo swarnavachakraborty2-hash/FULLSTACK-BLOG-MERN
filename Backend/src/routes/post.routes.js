@@ -70,7 +70,6 @@ route.get("/profiles/:id",authMiddlewares.authGeneral, postControllers.getUserPr
 //return current user profile
 route.post("/user-profile", authMiddlewares.authGeneral, postControllers.getUserProfile)
 
-
 //following/unfollowing other users
 route.post("/profiles/:id/follow",authMiddlewares.authGeneral, authControllers.Follow)
 

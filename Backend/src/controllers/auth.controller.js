@@ -12,12 +12,9 @@ const cookieOptions = {
 
 
 async function Register(req, res) {
+
     const { username, email, password } = req.body
 
-    let result = ""
-    if (req.file) {
-        result = await uploadFile(req.file.buffer)// profile pic
-    }
 
     const userAlreadyExists = await authModel.findOne({
         email
@@ -28,15 +25,14 @@ async function Register(req, res) {
         })
     }
 
+    const hashedPassword = await bcrypt.hash(password, 10)//generate a fixed size hash of password
 
-    const hashedPassword = await bcrypt.hash(password, 10)
 
     //storing userdata in db
     const user = await authModel.create({
         username,
-        password: hashedPassword,
-        email,
-        uri: result.url
+        password: hashedPassword,//storing the hashed password
+        email
     })
 
 
@@ -90,6 +86,50 @@ async function Login(req, res) {
 
 }
 
+async function uploadProfile(req, res) {
+
+    try {
+        const id = req.params.id
+
+        if (req.user.id.toString() == id) {
+
+            const user = await authModel.findOne({
+                _id: id
+            })
+
+            if (!user) {
+                return res.status(404).json({
+                    message: "user not found"
+                })
+            }
+
+            if (req.file) {      //multer
+                if (req.file) {
+                    const result = await uploadFile(req.file.buffer)
+                    user.uri = result.url 
+                    await user.save()
+                }
+            }
+
+            return res.status(200).json({
+                message: "profile picture added",
+                user
+            })
+        }
+        else {
+            return res.status(404).json({
+                message: "unauthorised"
+            })
+        }
+    }
+    catch {
+        return res.status(404).json({
+            message: "something went wrong"
+        })
+    }
+
+}
+
 async function Logout(req, res) {
     res.clearCookie("token", cookieOptions)
     res.status(200).json({
@@ -102,7 +142,7 @@ async function Follow(req, res) {
     const userID = req.user.id
     const id = req.params.id
 
-    const user = await authModel.findOne({_id: id})//user to follow
+    const user = await authModel.findOne({ _id: id })//user to follow
     const currUser = await authModel.findOne({ _id: userID })//user who follows
 
 
@@ -126,8 +166,9 @@ async function Follow(req, res) {
     await currUser.save()
     return res.status(200).json({ message: "unfollowed successfully" })
 
-
 }
 
 
-module.exports = { Register, Login, Logout, Follow }
+
+
+module.exports = { Register, uploadProfile, Login, Logout, Follow }

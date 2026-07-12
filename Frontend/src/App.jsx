@@ -8,6 +8,7 @@ import Login from "./Pages/login.jsx"
 import Comments from "./Pages/comments.jsx"
 import CurrProfile from "./Pages/currentProfile.jsx"
 import UserProfile from "./Pages/userProfile.jsx"
+import UploadProfile from "./Pages/uploadProfile.jsx"
 import "./index.css"
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
         <Route path="/:id/comments" element={<Comments />} />
         <Route path='/profile/:id' element={<UserProfile/>} />
         <Route path='/my-profile' element={<CurrProfile />} />
+        <Route path='/uploadProfile/:id' element={<UploadProfile />} />
       </Routes>
     </BrowserRouter>
   )

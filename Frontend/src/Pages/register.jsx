@@ -7,19 +7,18 @@ function Register() {
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
     const [email, setEmail] = useState("")
+    const [error, setError] = useState("")
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        setError("")
         try {
-            await api.post(
-                "/api/auth/register",
-                { username, email, password }
-            ).then((res) => {
-                console.log(res.data)
-                navigate("/")
-            })
-        } catch (error) {
-            console.log(error)
+            const res = await api.post("/api/auth/register", { username, email, password })
+            const newUserId = res.data.user._id
+            navigate(`/uploadProfile/${newUserId}`)
+        } catch (err) {
+            console.log(err)
+            setError(err.response?.data?.message || "Couldn't create your account. Try again.")
         }
     }
 
@@ -69,6 +68,8 @@ function Register() {
 
                     <button type="submit">Create Account</button>
                 </form>
+
+                {error && <p className="auth-hint is-error">{error}</p>}
 
                 <p className="auth-switch">
                     Already have an account?{" "}

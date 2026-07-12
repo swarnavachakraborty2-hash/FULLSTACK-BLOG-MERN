@@ -44,11 +44,11 @@ function UserProfile() {
       .then((res) => {
         const profile = res.data
         if (profile) {
-          setProfileUsername(profile.username)
+          setProfileUsername(profile.user.username)
           console.log(profile)
-          setProfilePic(profile.uri)
-          setFollowers(profile.followers.length)
-          setFollowing(profile.following.length)
+          setProfilePic(profile.user.uri)
+          setFollowers(profile.user.followers.length)
+          setFollowing(profile.user.following.length)
           if (currUserID) {
             setFollowedToUser(profile.followers.includes(currUserID))
           }
