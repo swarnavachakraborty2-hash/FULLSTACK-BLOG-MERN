@@ -1,15 +1,10 @@
 import api from '../api/axios'
 import React, { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-
 import {
-  FiArrowLeft,
-  FiGrid,
-  FiLogOut,
-  FiPlus,
-  FiSearch,
-  FiHome
-} from "react-icons/fi";
+  FiArrowLeft, FiGrid, FiLogOut,
+  FiPlus, FiSearch, FiHome, FiCamera
+} from "react-icons/fi"
 
 function CurrProfile() {
   const navigate = useNavigate()
@@ -19,6 +14,7 @@ function CurrProfile() {
   const [following, setFollowing] = useState(0)
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
+  const [id, setID] = useState()
 
   const [searchQuery, setSearchQuery] = useState("")
   const [searchedUsers, setSearchedUsers] = useState([])
@@ -26,11 +22,14 @@ function CurrProfile() {
   const searchRef = useRef(null)
 
   const [showAvatarModal, setShowAvatarModal] = useState(false)
+  const [uploadingPic, setUploadingPic] = useState(false)
+  const fileRef = useRef(null)
 
-  useEffect(() => {
+ useEffect(() => {
     api.get("/api/user/get-user")
       .then((res) => {
         if (res.data.username) {
+          setID(res.data._id)
           setProfileUsername(res.data.username)
           setProfilePic(res.data.uri)
           setFollowers(res.data.followers.length)
@@ -38,7 +37,8 @@ function CurrProfile() {
         }
       })
       .catch((err) => console.log(err))
-  }, [])
+  }, [profilePic])
+
 
   useEffect(() => {
     api.get("/api/user/user-posts")
@@ -52,7 +52,7 @@ function CurrProfile() {
       })
   }, [])
 
-  // close dropdown when clicking outside
+  // close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (searchRef.current && !searchRef.current.contains(e.target)) {
@@ -63,35 +63,28 @@ function CurrProfile() {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  // search users with debounce
+  // debounced user search
   useEffect(() => {
     if (!searchQuery.trim()) {
       setSearchedUsers([])
       setShowDropdown(false)
       return
     }
-
     const delay = setTimeout(() => {
-      api.post(
-        "/api/user/search-profiles",
-        { search: searchQuery }
-      )
+      api.post("/api/user/search-profiles", { search: searchQuery })
         .then((res) => {
           setSearchedUsers(res.data.foundUser || [])
           setShowDropdown(true)
         })
         .catch((err) => console.log(err))
     }, 350)
-
     return () => clearTimeout(delay)
   }, [searchQuery])
 
-  // close avatar modal on Escape key
+  // close avatar modal on Escape
   useEffect(() => {
     if (!showAvatarModal) return
-    const handleEsc = (e) => {
-      if (e.key === "Escape") setShowAvatarModal(false)
-    }
+    const handleEsc = (e) => { if (e.key === "Escape") setShowAvatarModal(false) }
     document.addEventListener("keydown", handleEsc)
     return () => document.removeEventListener("keydown", handleEsc)
   }, [showAvatarModal])
@@ -105,13 +98,29 @@ function CurrProfile() {
     }
   }
 
+  // upload new profile pic
+  const handlePicChange = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    setUploadingPic(true)
+    try {
+      const formData = new FormData()
+      formData.append("image", file)
+      const res = await api.patch(`http://localhost:5000/api/auth/updateProfile/${id}`, formData)
+      setProfilePic(res.data.uri)
+    } catch (err) {
+      console.log(err)
+    } finally {
+      setUploadingPic(false)
+    }
+  }
 
   return (
     <>
       {/* ── NAVBAR ── */}
       <nav className="navbar">
         <div className="navbar-brand">Pixora</div>
-        {/* User search with dropdown */}
+
         <div className="search-bar" ref={searchRef} style={{ position: "relative" }}>
           <FiSearch className="search-icon" />
           <input
@@ -122,120 +131,66 @@ function CurrProfile() {
             placeholder="Search users…"
           />
 
-          {/* Dropdown */}
           {showDropdown && searchedUsers.length > 0 && (
             <div style={{
-              position: "absolute",
-              top: "calc(100% + 8px)",
-              left: 0,
-              right: 0,
-              background: "rgba(13,20,37,0.97)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              borderRadius: 14,
-              backdropFilter: "blur(20px)",
-              boxShadow: "0 16px 48px rgba(0,0,0,0.5)",
-              zIndex: 200,
-              overflow: "hidden",
-              maxHeight: 320,
-              overflowY: "auto"
+              position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0,
+              background: "rgba(13,20,37,0.97)", border: "1px solid rgba(255,255,255,0.08)",
+              borderRadius: 14, backdropFilter: "blur(20px)",
+              boxShadow: "0 16px 48px rgba(0,0,0,0.5)", zIndex: 200,
+              overflow: "hidden", maxHeight: 320, overflowY: "auto"
             }}>
               {searchedUsers.map((user) => (
                 <div
                   key={user._id}
-                  onClick={() => {
-                    setShowDropdown(false)
-                    setSearchQuery("")
-                    navigate(`/profile/${user._id}`)
-                  }}
+                  onClick={() => { setShowDropdown(false); setSearchQuery(""); navigate(`/profile/${user._id}`) }}
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 12,
-                    padding: "10px 14px",
-                    cursor: "pointer",
-                    transition: "background 0.15s",
+                    display: "flex", alignItems: "center", gap: 12,
+                    padding: "10px 14px", cursor: "pointer", transition: "background 0.15s",
                     borderBottom: "1px solid rgba(255,255,255,0.05)"
                   }}
                   onMouseEnter={(e) => e.currentTarget.style.background = "rgba(108,139,255,0.08)"}
                   onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
                 >
-                  {/* Avatar */}
                   <div style={{
-                    width: 34,
-                    height: 34,
-                    borderRadius: "50%",
+                    width: 34, height: 34, borderRadius: "50%",
                     background: "linear-gradient(135deg, #6c8bff, #a78bfa)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 13,
-                    fontWeight: 700,
-                    color: "white",
-                    flexShrink: 0,
-                    overflow: "hidden"
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 13, fontWeight: 700, color: "white", flexShrink: 0, overflow: "hidden"
                   }}>
                     {user.uri
                       ? <img src={user.uri} alt={user.username} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                       : user.username?.[0]?.toUpperCase()
                     }
                   </div>
-
-                  <span style={{
-                    fontSize: 14,
-                    fontWeight: 600,
-                    color: "#e8eaf6"
-                  }}>
-                    @{user.username}
-                  </span>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: "#e8eaf6" }}>@{user.username}</span>
                 </div>
               ))}
             </div>
           )}
 
-          {/* No results */}
           {showDropdown && searchQuery.trim() && searchedUsers.length === 0 && (
             <div style={{
-              position: "absolute",
-              top: "calc(100% + 8px)",
-              left: 0,
-              right: 0,
-              background: "rgba(13,20,37,0.97)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              borderRadius: 14,
-              backdropFilter: "blur(20px)",
-              padding: "14px",
-              textAlign: "center",
-              fontSize: 13,
-              color: "#64748b",
-              zIndex: 200
+              position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0,
+              background: "rgba(13,20,37,0.97)", border: "1px solid rgba(255,255,255,0.08)",
+              borderRadius: 14, backdropFilter: "blur(20px)", padding: "14px",
+              textAlign: "center", fontSize: 13, color: "#64748b", zIndex: 200
             }}>
               No users found
             </div>
           )}
         </div>
-        <div className="navbar-right">
 
-          <button
-            className="btn-ghost"
-            onClick={() => navigate(-1)}
-            style={{ display: "flex", alignItems: "center", gap: 6 }}
-          >
+        <div className="navbar-right">
+          <button className="btn-ghost" onClick={() => navigate(-1)}
+            style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <FiArrowLeft /> <span className="nav-btn-text">Back</span>
           </button>
-
-          <button
-            className="btn-ghost"
-            onClick={() => navigate("/")}
-            style={{ display: "flex", alignItems: "center", gap: 6 }}
-          >
-             <FiHome /> <span className="nav-btn-text">Feed</span>
+          <button className="btn-ghost" onClick={() => navigate("/")}
+            style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <FiHome /> <span className="nav-btn-text">Feed</span>
           </button>
-
-          <button
-            className="logout-btn"
-            onClick={handleLogout}
-            style={{ display: "flex", alignItems: "center", gap: 6 }}
-          >
+          <button className="logout-btn" onClick={handleLogout}
+            style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <FiLogOut size={14} /> <span className="nav-btn-text">Logout</span>
           </button>
         </div>
@@ -244,24 +199,67 @@ function CurrProfile() {
       <div className="profile-page">
 
         {/* ── BANNER ── */}
-        <div className="profile-banner" style={{ position: "relative", zIndex: 1 }}>
-          <div className="profile-banner-glow" style={{ zIndex: -1 }} />
+        <div className="profile-banner">
+          <div className="profile-banner-glow" />
         </div>
 
         {/* ── PROFILE CARD ── */}
-        <div className="profile-card" style={{ position: "relative", zIndex: 2 }}>
-          <div
-            className="profile-avatar-ring"
-            onClick={() => profilePic && setShowAvatarModal(true)}
-            style={{ position: "relative", zIndex: 3, cursor: profilePic ? "pointer" : "default" }}
-          >
-            {profilePic ? (
-              <img src={profilePic} alt={profileUsername} className="profile-avatar" />
-            ) : (
-              <div className="profile-avatar-fallback">
-                {profileUsername?.[0]?.toUpperCase() || "?"}
-              </div>
-            )}
+        <div className="profile-card">
+
+          {/* Avatar with edit button */}
+          <div style={{ position: "relative", display: "inline-block" }}>
+            <div
+              className="profile-avatar-ring"
+              onClick={() => profilePic && setShowAvatarModal(true)}
+              style={{ cursor: profilePic ? "pointer" : "default" }}
+            >
+              {profilePic ? (
+                <img src={profilePic} alt={profileUsername} className="profile-avatar" />
+              ) : (
+                <div className="profile-avatar-fallback">
+                  {profileUsername?.[0]?.toUpperCase() || "?"}
+                </div>
+              )}
+            </div>
+
+            {/* Edit pfp button */}
+            <button
+              onClick={() => fileRef.current.click()}
+              disabled={uploadingPic}
+              style={{
+                position: "absolute",
+                bottom: 4,
+                right: 4,
+                width: 30,
+                height: 30,
+                borderRadius: "50%",
+                background: uploadingPic ? "#334155" : "linear-gradient(135deg, #6c8bff, #a78bfa)",
+                border: "2px solid #070b14",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: uploadingPic ? "not-allowed" : "pointer",
+                padding: 0,
+                boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
+                zIndex: 5,
+                transition: "transform 0.15s"
+              }}
+              title="Change profile picture"
+            >
+              {uploadingPic
+                ? <span style={{ fontSize: 10, color: "white" }}>...</span>
+                : <FiCamera size={13} color="white" />
+              }
+            </button>
+
+            {/* Hidden file input */}
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={handlePicChange}
+            />
           </div>
 
           <h1 className="profile-username">@{profileUsername}</h1>
@@ -299,18 +297,12 @@ function CurrProfile() {
 
           {loading ? (
             <div className="profile-posts-grid">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="profile-skeleton-card" />
-              ))}
+              {[...Array(6)].map((_, i) => <div key={i} className="profile-skeleton-card" />)}
             </div>
           ) : posts.length > 0 ? (
             <div className="profile-posts-grid">
               {posts.map((post) => (
-                <div
-                  key={post._id}
-                  className="profile-post-tile"
-                  onClick={() => navigate(`/${post._id}`)}
-                >
+                <div key={post._id} className="profile-post-tile" onClick={() => navigate(`/${post._id}`)}>
                   <img src={post.uri} alt={post.caption} />
                   <div className="profile-post-overlay">
                     <p className="profile-post-caption">{post.caption}</p>
@@ -329,22 +321,16 @@ function CurrProfile() {
             </div>
           )}
         </div>
-
       </div>
 
-      {/* ── AVATAR LIGHTBOX ── */}
+      {/* ── AVATAR MODAL ── */}
       {showAvatarModal && (
         <div
           onClick={() => setShowAvatarModal(false)}
           style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.9)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-            cursor: "zoom-out"
+            position: "fixed", inset: 0, background: "rgba(0,0,0,0.9)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            zIndex: 1000, cursor: "zoom-out"
           }}
         >
           <img
@@ -352,12 +338,9 @@ function CurrProfile() {
             alt={profileUsername}
             onClick={(e) => e.stopPropagation()}
             style={{
-              width: "min(400px, 80vw)",
-              height: "min(400px, 80vw)",
-              borderRadius: "50%",
-              objectFit: "cover",
-              boxShadow: "0 0 60px rgba(0,0,0,0.6)",
-              cursor: "default"
+              width: "min(400px, 80vw)", height: "min(400px, 80vw)",
+              borderRadius: "50%", objectFit: "cover",
+              boxShadow: "0 0 60px rgba(0,0,0,0.6)", cursor: "default"
             }}
           />
         </div>

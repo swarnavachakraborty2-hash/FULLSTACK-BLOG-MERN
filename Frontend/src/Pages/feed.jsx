@@ -146,7 +146,7 @@ const Feed = () => {
                 </div>
             </nav>
 
-            {/* ── FEED ── */}
+            {/* FEED */}
             <section className="feed-section">
                 <h1 className="feed-page-title">Discover</h1>
 

@@ -60,8 +60,8 @@ function UploadProfile() {
     formData.append('image', file)
 
     try {
-      // Don't set Content-Type manually — the browser fills in the
-      // multipart boundary automatically when the body is a FormData.
+    
+  
       const res = await api.post(`/api/auth/uploadProfile/${id}`, formData)
       setPreview(res.data?.user?.uri || preview)
       setFile(null)

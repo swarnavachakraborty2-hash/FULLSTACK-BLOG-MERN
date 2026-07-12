@@ -69,7 +69,7 @@ function Postcard() {
         fetchpost()
     }, [id, userID])
 
-    // get post author details
+   
     useEffect(() => {
         if (!ID) return
         const fetchAuthor = async () => {

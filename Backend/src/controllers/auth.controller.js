@@ -130,6 +130,47 @@ async function uploadProfile(req, res) {
 
 }
 
+async function UpdateProfile(req,res) {
+    try {
+
+        if (req.user.id) {
+            const id = req.user.id
+            const user = await authModel.findOne({
+                _id: id
+            })
+
+            if (!user) {
+                return res.status(404).json({
+                    message: "user not found"
+                })
+            }
+
+            if (req.file) {      //multer
+                if (req.file) {
+                    const result = await uploadFile(req.file.buffer)
+                    user.uri = result.url 
+                    await user.save()
+                }
+            }
+
+            return res.status(200).json({
+                message: "profile picture updated",
+                user
+            })
+        }
+        else {
+            return res.status(404).json({
+                message: "unauthorised"
+            })
+        }
+    }
+    catch {
+        return res.status(404).json({
+            message: "something went wrong"
+        })
+    }
+}
+
 async function Logout(req, res) {
     res.clearCookie("token", cookieOptions)
     res.status(200).json({
@@ -171,4 +212,4 @@ async function Follow(req, res) {
 
 
 
-module.exports = { Register, uploadProfile, Login, Logout, Follow }
+module.exports = { Register, uploadProfile, Login, Logout, Follow, UpdateProfile }
