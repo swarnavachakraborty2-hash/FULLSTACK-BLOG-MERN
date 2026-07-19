@@ -16,7 +16,7 @@ const postSchema = mongoose.Schema({
 
     //contains the ids of the user who liked the post
     likes: [{
-        //_id is added automatically 
+        //_id is added automatically to each like
         type: mongoose.Schema.Types.ObjectId,
         ref: "user"
     }],
@@ -24,7 +24,7 @@ const postSchema = mongoose.Schema({
 
     //contains the ids and comments of the users
     comments: [{
-        //_id is added automatically to each object which can be accessed using .id(id)
+        //_id is added automatically to each comment
         id: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "user",

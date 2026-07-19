@@ -106,7 +106,7 @@ function CurrProfile() {
     try {
       const formData = new FormData()
       formData.append("image", file)
-      const res = await api.patch(`http://localhost:5000/api/auth/updateProfile/${id}`, formData)
+      const res = await api.patch(`/api/auth/updateProfile/${id}`, formData)
       setProfilePic(res.data.uri)
     } catch (err) {
       console.log(err)
@@ -198,15 +198,15 @@ function CurrProfile() {
 
       <div className="profile-page">
 
-        {/* ── BANNER ── */}
+        
         <div className="profile-banner">
           <div className="profile-banner-glow" />
         </div>
 
-        {/* ── PROFILE CARD ── */}
+      
         <div className="profile-card">
 
-          {/* Avatar with edit button */}
+         
           <div style={{ position: "relative", display: "inline-block" }}>
             <div
               className="profile-avatar-ring"
@@ -222,7 +222,7 @@ function CurrProfile() {
               )}
             </div>
 
-            {/* Edit pfp button */}
+           
             <button
               onClick={() => fileRef.current.click()}
               disabled={uploadingPic}
@@ -252,7 +252,7 @@ function CurrProfile() {
               }
             </button>
 
-            {/* Hidden file input */}
+           
             <input
               ref={fileRef}
               type="file"
@@ -282,7 +282,7 @@ function CurrProfile() {
           </div>
         </div>
 
-        {/* ── POSTS ── */}
+     
         <div className="profile-posts-section">
           <div className="profile-posts-header">
             <FiGrid size={16} />
@@ -323,7 +323,7 @@ function CurrProfile() {
         </div>
       </div>
 
-      {/* ── AVATAR MODAL ── */}
+      
       {showAvatarModal && (
         <div
           onClick={() => setShowAvatarModal(false)}

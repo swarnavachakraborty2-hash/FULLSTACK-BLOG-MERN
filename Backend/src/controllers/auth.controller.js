@@ -3,12 +3,12 @@ const jwt = require("jsonwebtoken")
 const uploadFile = require("../services/imagekit")
 const bcrypt = require("bcrypt")
 
+
 const cookieOptions = {
     httpOnly: true,
     secure: true,
     sameSite: "none"
 }
-
 
 
 async function Register(req, res) {
@@ -19,6 +19,7 @@ async function Register(req, res) {
     const userAlreadyExists = await authModel.findOne({
         email
     })
+    
     if (userAlreadyExists) {
         return res.status(409).json({
             message: "email already in use"
@@ -87,7 +88,6 @@ async function Login(req, res) {
 }
 
 async function uploadProfile(req, res) {
-
     try {
         const id = req.params.id
 
@@ -104,11 +104,9 @@ async function uploadProfile(req, res) {
             }
 
             if (req.file) {      //multer
-                if (req.file) {
-                    const result = await uploadFile(req.file.buffer)
-                    user.uri = result.url 
-                    await user.save()
-                }
+                const result = await uploadFile(req.file.buffer)
+                user.uri = result.url
+                await user.save()
             }
 
             return res.status(200).json({
@@ -130,7 +128,7 @@ async function uploadProfile(req, res) {
 
 }
 
-async function UpdateProfile(req,res) {
+async function UpdateProfile(req, res) {
     try {
 
         if (req.user.id) {
@@ -148,7 +146,7 @@ async function UpdateProfile(req,res) {
             if (req.file) {      //multer
                 if (req.file) {
                     const result = await uploadFile(req.file.buffer)
-                    user.uri = result.url 
+                    user.uri = result.url
                     await user.save()
                 }
             }

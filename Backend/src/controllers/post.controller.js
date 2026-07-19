@@ -94,7 +94,7 @@ async function updatePosts(req, res) {//needs to pass a paramter object with key
 async function getPost(req, res) {
 
     const id = req.params.id
-    const post = await postModel.findById(id).populate("comments.id", "username")
+    const post = await postModel.findById(id)
 
     const userid = req.user.id
 
@@ -359,9 +359,9 @@ async function getUserPosts(req, res) {
 
     const userID = req.params.id
 
-
     const posts = await postModel.find({ user_id: userID })
 
+    
     return res.status(200).json({
         message: "user's posts fetched successfully",
         posts
