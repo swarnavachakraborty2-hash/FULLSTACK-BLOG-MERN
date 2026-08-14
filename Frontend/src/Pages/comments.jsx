@@ -26,7 +26,7 @@ function Comments() {
 
     useEffect(() => {
         api.get("/api/user/get-user")
-            .then((res) => setUsername(res.data.user.username))
+            .then((res) => setUsername(res.data.username))
             .catch((err) => console.log(err))
     }, [id])
 

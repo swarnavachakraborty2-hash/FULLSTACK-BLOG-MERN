@@ -94,7 +94,7 @@ async function updatePosts(req, res) {//needs to pass a paramter object with key
 async function getPost(req, res) {
 
     const id = req.params.id
-    const post = await postModel.findById(id)
+    const post = await postModel.findById(id).populate("comments.id", "username uri")
 
     const userid = req.user.id
 
@@ -204,6 +204,7 @@ async function commentPost(req, res) {
     post.comments.push({ id, comment })
 
     await post.save()
+    await post.populate("comments.id", "username uri")
 
     return res.status(200).json({
         message: "comment uploaded successfully",
@@ -230,6 +231,7 @@ async function deleteComment(req, res) {
 
         post.comments.splice(index, 1) //delete the comment from the comments array whose index was provided 
         await post.save()
+        await post.populate("comments.id", "username uri")
 
         return res.status(200).json({
             message: "comment deleted successfully",
@@ -295,7 +297,6 @@ async function getCurrentUser(req, res) {
 
 async function getUsers(req, res) {
 
-
     const users = await authModel.find()
 
     if (users) {
@@ -304,7 +305,7 @@ async function getUsers(req, res) {
             users
         })
     } else {
-        return res.status(200).json({
+        return res.status(200).json({         
             message: "no users found"
         })
     }

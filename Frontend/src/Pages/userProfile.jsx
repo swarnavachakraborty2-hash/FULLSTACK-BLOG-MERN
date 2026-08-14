@@ -31,7 +31,7 @@ function UserProfile() {
       api.get(`/api/user/profiles/${id}`)
     ])
       .then(([currRes, profileRes]) => {
-        const currUser = currRes.data.user
+        const currUser = currRes.data
         const profile = profileRes.data.user
 
         if (currUser) {
