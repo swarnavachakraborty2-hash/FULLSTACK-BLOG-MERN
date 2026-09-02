@@ -25,7 +25,7 @@ function CurrProfile() {
   const [uploadingPic, setUploadingPic] = useState(false)
   const fileRef = useRef(null)
 
- useEffect(() => {
+  useEffect(() => {
     api.get("/api/user/get-user")
       .then((res) => {
         if (res.data.username) {
@@ -37,7 +37,7 @@ function CurrProfile() {
         }
       })
       .catch((err) => console.log(err))
-  }, [profilePic])
+  }, [])
 
 
   useEffect(() => {
@@ -106,12 +106,17 @@ function CurrProfile() {
     try {
       const formData = new FormData()
       formData.append("image", file)
-      const res = await api.patch(`/api/auth/updateProfile/${id}`, formData)
-      setProfilePic(res.data.uri)
+      const res = await api.patch(`/api/auth/updateProfile${id ? `/${id}` : ""}`, formData)
+      const newUri = res.data.uri || res.data.user?.uri
+      if (newUri) {
+        setProfilePic(newUri)
+      }
     } catch (err) {
-      console.log(err)
+      console.log("Error updating profile picture:", err)
+      alert("Failed to update profile picture. Please try again.")
     } finally {
       setUploadingPic(false)
+      if (fileRef.current) fileRef.current.value = ""
     }
   }
 
@@ -224,14 +229,18 @@ function CurrProfile() {
 
            
             <button
-              onClick={() => fileRef.current.click()}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                fileRef.current?.click()
+              }}
               disabled={uploadingPic}
               style={{
                 position: "absolute",
-                bottom: 4,
-                right: 4,
-                width: 30,
-                height: 30,
+                bottom: 2,
+                right: 2,
+                width: 32,
+                height: 32,
                 borderRadius: "50%",
                 background: uploadingPic ? "#334155" : "linear-gradient(135deg, #6c8bff, #a78bfa)",
                 border: "2px solid #070b14",
@@ -241,14 +250,14 @@ function CurrProfile() {
                 cursor: uploadingPic ? "not-allowed" : "pointer",
                 padding: 0,
                 boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
-                zIndex: 5,
+                zIndex: 10,
                 transition: "transform 0.15s"
               }}
               title="Change profile picture"
             >
               {uploadingPic
                 ? <span style={{ fontSize: 10, color: "white" }}>...</span>
-                : <FiCamera size={13} color="white" />
+                : <FiCamera size={14} color="white" />
               }
             </button>
 

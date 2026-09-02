@@ -11,6 +11,7 @@ route.post("/register", authControllers.Register)// req = {image:"",username:"",
 route.post("/uploadProfile/:id", authMiddlewares.authGeneral, upload.single("image"), authControllers.uploadProfile)
 
 route.patch("/updateProfile/:id", authMiddlewares.authGeneral, upload.single("image"), authControllers.UpdateProfile)
+route.patch("/updateProfile", authMiddlewares.authGeneral, upload.single("image"), authControllers.UpdateProfile)
 
 route.post("/login", authControllers.Login)// req = {username:""/email:"" , password:""}
 

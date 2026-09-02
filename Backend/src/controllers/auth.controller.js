@@ -130,8 +130,7 @@ async function uploadProfile(req, res) {
 
 async function UpdateProfile(req, res) {
     try {
-
-        if (req.user.id) {
+        if (req.user && req.user.id) {
             const id = req.user.id
             const user = await authModel.findOne({
                 _id: id
@@ -143,28 +142,29 @@ async function UpdateProfile(req, res) {
                 })
             }
 
-            if (req.file) {      //multer
-                if (req.file) {
-                    const result = await uploadFile(req.file.buffer)
-                    user.uri = result.url
-                    await user.save()
-                }
+            if (req.file) {
+                const result = await uploadFile(req.file.buffer)
+                user.uri = result.url
+                await user.save()
             }
 
             return res.status(200).json({
                 message: "profile picture updated",
-                user
+                user,
+                uri: user.uri
             })
         }
         else {
-            return res.status(404).json({
+            return res.status(401).json({
                 message: "unauthorised"
             })
         }
     }
-    catch {
-        return res.status(404).json({
-            message: "something went wrong"
+    catch (err) {
+        console.log("Error updating profile:", err)
+        return res.status(500).json({
+            message: "something went wrong",
+            error: err.message
         })
     }
 }
