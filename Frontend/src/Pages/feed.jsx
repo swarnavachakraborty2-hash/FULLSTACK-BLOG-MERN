@@ -6,6 +6,7 @@ import api from "../api/axios"
 const Feed = () => {
     const navigate = useNavigate()
     const [posts, setPosts] = useState([])
+    const [loading, setLoading] = useState(true)
     const [searchCaption, setSearchCaption] = useState("")
     const [username, setUsername] = useState("")
     const [profilePic, setProfilePic] = useState("")
@@ -31,18 +32,21 @@ const Feed = () => {
     useEffect(() => {
         const fetchPosts = async () => {
             try {
+                setLoading(true)
                 if (searchCaption.trim() === "") {
                     const res = await api.get("/api/user/posts")
-                    setPosts(res.data.posts)
+                    setPosts(res.data.posts || [])
                 } else {
                     const res = await api.post(
                         "/api/user/search-post",
                         { search: searchCaption }
                     )
-                    setPosts(res.data.posts)
+                    setPosts(res.data.posts || [])
                 }
             } catch (err) {
                 console.log(err)
+            } finally {
+                setLoading(false)
             }
         }
         const delay = setTimeout(fetchPosts, 400)
@@ -151,7 +155,17 @@ const Feed = () => {
                 <h1 className="feed-page-title">Discover</h1>
 
                 <div className="grid">
-                    {posts && posts.length > 0 ? (
+                    {loading ? (
+                        [...Array(8)].map((_, i) => (
+                            <div key={i} className="post-skeleton-card">
+                                <div className="post-skeleton-img" />
+                                <div className="post-skeleton-body">
+                                    <div className="post-skeleton-author" />
+                                    <div className="post-skeleton-caption" />
+                                </div>
+                            </div>
+                        ))
+                    ) : posts && posts.length > 0 ? (
                         posts.map((post) => (
                             <div
                                 key={post._id}
@@ -175,12 +189,12 @@ const Feed = () => {
                                             flexShrink: 0,
                                             overflow: "hidden"
                                         }}>
-                                            {post.user_id.uri
+                                            {post.user_id?.uri
                                                 ? <img src={post.user_id.uri} alt={post.user_id.username} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                                                : post.user_id.username?.[0]?.toUpperCase()
+                                                : post.user_id?.username?.[0]?.toUpperCase()
                                             }
                                         </span>
-                                        @{post.user_id.username}
+                                        @{post.user_id?.username}
                                     </p>
                                     <p className="post-card-caption">{post.caption}</p>
                                 </div>
